@@ -16,7 +16,6 @@ class Feed(db.Model):
 class Position(db.Model):
     """A GPS point for a given feed that may include additional info."""
     id = db.Column(db.Integer, primary_key=True)
-    date_recorded = db.Column(db.DateTime, default=datetime.datetime.utcnow())
     epoch = db.Column(db.Integer, unique=True)
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
@@ -25,8 +24,8 @@ class Position(db.Model):
     # feed = db.Column(db.Integer, db.ForeignKey('Feed.id'))
 
     # Geo information:
-    # country = db.Column(db.Unicode)
-    # city = db.Column(db.Unicode)
+    country = db.Column(db.Unicode)
+    city = db.Column(db.Unicode)
     # I think there's more, see https://pypi.python.org/pypi/geolocation-python
 
     # Weather information, although this might want to be elsewhere.
