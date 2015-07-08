@@ -74,7 +74,7 @@ def GetLastPositions(count, before=None):
     return query.order_by(Position.epoch.desc()).limit(count)
 
 
-def _IsField(only, name, skip):
+def _IsField(name, only, skip):
     if only:
         return name in only
     invalid_fields = ['query', 'metadata', 'query_class'] + skip
@@ -92,9 +92,9 @@ def AsDict(obj, only=None, skip=None):
     skip = list(skip) if skip else []
     return dict([
         (name, getattr(obj, name))
-        for name in dir(obj.__class__) if _IsField(only, name, skip)])
+        for name in dir(obj.__class__) if _IsField(name, only, skip)])
 
 
 def RowsAsDicts(rows, only=None, skip=None):
     """Returns a list of dicts of data; see AsDict above."""
-    return [AsDict(row, skip) for row in rows]
+    return [AsDict(row, only=only, skip=skip) for row in rows]
