@@ -10,6 +10,7 @@ import unidecode
 import config
 from app import models
 from app import spot
+from app.flask_app import db
 
 
 celery_app = celery.Celery(__name__, broker=config.CELERY_BROKER_URL)
