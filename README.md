@@ -3,7 +3,7 @@
 Personal project for storing [Spot](http://findmespot.com) GPS data, playing around with it, and displaying it in online.
 This app runs a web dyno on [Heroku](http://heroku.com) and a worker dyno using [Celery](http://www.celeryproject.org/).
 
-Many thanks to @sinanuozdemir for helping me get started.
+Many thanks to [Sinan](https://github.com/sinanuozdemir) for helping me get started.
 
 ## Development setup
 
@@ -16,7 +16,7 @@ Many thanks to @sinanuozdemir for helping me get started.
 
 ### Setup the Virtual Environment
 
-In a console, navigate to `wheresbrendan` and run
+In a shell, navigate to `wheresbrendan` and run
 
 ```bash
 virtualenv
@@ -49,7 +49,7 @@ Now that you're in a virtual environment, get all the packages!
 pip install -r requirements.txt
 ```
 
-You'll need to do this anytime packages are added to or changed in `requirements.txt`.
+You'll need to do this anytime packages are added to or changed in (requirements.txt)[requirements.txt].
 
 ### Environment Variables
 
