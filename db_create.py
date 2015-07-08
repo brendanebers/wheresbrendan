@@ -4,6 +4,7 @@ from migrate.versioning import api
 from config import SQLALCHEMY_DATABASE_URI
 from app import config import SQLALCHEMY_MIGRATE_REPO
 from app.flask_app import db
+from app.flask_app import models  # Just making sure they're loaded.
 import os
 
 if not os.path.exists(config.SQLALCHEMY_MIGRATE_REPO):

@@ -3,6 +3,7 @@
 import imp
 from migrate.versioning import api
 from app.flask_app import db
+from app.flask_app import models  # Just making sure they're loaded.
 from config import SQLALCHEMY_DATABASE_URI
 from config import SQLALCHEMY_MIGRATE_REPO
 v = api.db_version(SQLALCHEMY_DATABASE_URI, SQLALCHEMY_MIGRATE_REPO)
