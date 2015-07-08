@@ -6,5 +6,5 @@ from app import views  # This registers the views with the flask app
 app = flask_app.flask_app
 
 
-def Run(*args, **kwargs):
-    flask_app.flask_app.run(*args, **kwargs)
+if __name__ == '__main__':
+    app.run(debug=True)
