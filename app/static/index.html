@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Where's Brendan?</title>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.6.6/jquery.fullPage.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.6.6/vendors/jquery.easings.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.6.6/vendors/jquery.slimscroll.min.js"></script>
+    <script src="/static/js/app.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Roboto">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.6.6/jquery.fullPage.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/base.css">
+  </head>
+  <body>
+    <div id="fullpage">
+      <!-- Section 1 shows current location. -->
+      <div id="now-section" class="section">
+        <div class="header">
+          WHERES<span class="header-highlighted">BRENDAN</span>
+        </div>
+        <div id="slacking">
+          <div id="slacking-header">Apparently not done writing this code...</div>
+          <div id="slacking-sub">but scroll <a href="#previously">down</a></div>
+        </div>
+      </div>
+
+      <!-- Section 2 is a map of where I've been -->
+      <div id="section-previously" class="section">
+        <div class="header">
+          WHERE<span class="thin">WAS</span><span class="header-highlighted">BRENDAN</span>
+        </div>
+        <div id="range-selector">
+          <form id="range-form" name="time-range">
+            from <input placeholder="start" name="start" value="6/29 8am">
+            to <input placeholder="end" name="end" value="July 4">
+            <input type="submit" onclick="updateData(); return false;" value="Update">
+          </form>
+        </div>
+        <div id="map-canvas"></div>
+      </div>
+
+    </div> <!-- /full page -->
+  </body>
+</html>
