@@ -17,7 +17,7 @@ SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
 # Celery configuration
-# CELERY_BROKER_URL = os.environ.get('')
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 BROKER_CONNECTION_TIMEOUT = 30

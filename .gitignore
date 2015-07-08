@@ -16,5 +16,6 @@ pip-selfcheck.json
 .DS_Store
 .installed.cfg
 .Python
+celerybeat.pid
 celerybeat-schedule
 celerybeat-schedule.db
