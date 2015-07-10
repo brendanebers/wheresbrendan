@@ -1,5 +1,5 @@
 from twilio import rest
-import twilio.twiml
+from twilio import twiml
 
 import config
 
@@ -17,28 +17,41 @@ def SendMessage(message):
 
 
 def HandleIncoming(from_number, original_message):
-    """Routes an incoming text message."""
+    """Routes an incoming text message.
+
+    Args:
+        from_number: The sender of the text message.
+        original_message: The body of the message.
+
+    Returns:
+        A twiml Response.
+    """
+    empty = twiml.Response()
     lowered = original_message.lower().split(None, 1)
-    if not lowered:
-        return None
+    if not lowered:  # If they aren't going to talk to us...
+        return empty
+
     command = lowered[0]
     message = lowered[1] if len(lowered) == 2 else ''
 
     if command.startswith('weather'):
-        return _RespondWeather(from_number, message)
+        return _RespondWeather(from_number, message) or empty
 
-    # We'll try to tell them where anyways...
-    elif command.startswith('where') or True:
-        return _RespondWhere(from_number, message)
+    elif command.startswith('where'):
+        return _RespondWhere(from_number, message) or empty
 
+    return empty
 
 def _RespondWhere(from_number, message):
     """Responds where a tracked spot is.
 
-    args:
+    Args:
         from_number: The number that sent the request.
         message: The message, stripped of the command. Initially ignored, but
             could be used in the future if a person is following multiple Spots.
+
+    Returns:
+        A twiml Response or None.
     """
     feeds = _LookupFollowedFeeds(from_number)
     resp = twilio.twiml.Response()
@@ -52,7 +65,7 @@ def _RespondWeather(from_number, message):
 
     This method responds asynchronously to valid requests.
 
-    args:
+    Args:
         from_number: The number that sent the request, should correspond with a
             tracked Spot.
         message: The message, stripped of the "weather" command. If empty, the
@@ -61,6 +74,9 @@ def _RespondWeather(from_number, message):
             be sent. If the message is "to Mexico City", then a temp range and
             chance of rain between current location and Mexico City will be
             sent.
+
+    Returns:
+        A twiml Response or None.
     """
     feed = _LookupOwnedFeed(from_number)
     resp = twilio.twiml.Response()
@@ -74,12 +90,9 @@ def _RespondWeather(from_number, message):
 def _LookupOwnedFeed(number):
     """Returns a feed (str) or None that the number is the owner of."""
     if number == config.BRENDAN_NUMBER:
-        return 'feed'
+        return 'feed'  # Put a real feed here.
 
 
 def _LookupFollowedFeeds(number):
     """Returns a list of feeds (str) that the given number is a follower of."""
     return []
-
-
-_COMMANDS = {'where': _RespondWhere, 'weather', _RespondWeather}

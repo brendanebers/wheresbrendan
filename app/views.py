@@ -43,5 +43,6 @@ def get_positions():
 
 @app.route('/api/texting/', methods=['GET', 'POST'])
 def handle_texts():
-    return str(texting.HandleIncoming(
-        request.values.get('From'), request.values.get('Body')))
+    resp = texting.HandleIncoming(
+        request.values.get('From'), request.values.get('Body'))
+    return str(resp)
