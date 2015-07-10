@@ -4,10 +4,8 @@ import flask
 from flask import request
 import json
 
-import config
 from app.flask_app import flask_app as app
 from app import models
-from app import texting
 
 
 @app.route('/')
@@ -39,10 +37,3 @@ def get_positions():
     positions = models.PositionRange(start=start, end=end)
     return json.dumps(
         {'points': models.RowsAsDicts(positions, skip=['date_recorded'])})
-
-
-@app.route('/api/texting/', methods=['GET', 'POST'])
-def handle_texts():
-    print request.args
-    if request.args.get('From') == config.BRENDAN_NUMBER:
-        return str(texting.HandleIncoming(request.args.get('from')))
