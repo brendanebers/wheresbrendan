@@ -46,3 +46,4 @@ def handle_texts():
     print request.args
     if request.args.get('From') == config.BRENDAN_NUMBER:
         return str(texting.HandleIncoming(request.args.get('from')))
+    return "you're not brendan"

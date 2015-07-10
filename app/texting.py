@@ -18,6 +18,5 @@ def SendMessage(message):
 
 def HandleIncoming(from_number):
     resp = twilio.twiml.Response()
-    resp.message = 'Handled'
-    print resp
+    resp.message('Got your message %s' % from_number)
     return resp
