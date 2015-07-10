@@ -17,7 +17,9 @@ celery_app = celery.Celery(__name__, broker=config.CELERY_BROKER_URL)
 celery_app.config_from_object('config')
 
 
-@decorators.periodic_task(run_every=schedules.crontab(hour='*', minute='*'))
+# Run every 10 minutes.
+# http://celery.readthedocs.org/en/latest/userguide/periodic-tasks.html
+@decorators.periodic_task(run_every=schedules.crontab(minute='*/10'))
 def ScrapeData(feed=None, feeds=None):
     """Scrapes and saves data for the given feed or feeds."""
     if feed:
