@@ -16,7 +16,11 @@ def SendMessage(message):
         to=config.BRENDAN_NUMBER, from_=config.TWILIO_NUMBER, body=message)
 
 
-def HandleIncoming(from_number):
+def HandleIncoming(from_number, message=None):
+    message = message or []
     resp = twilio.twiml.Response()
-    resp.message('Got your message %s' % from_number)
+    if 'weather' in message:
+        resp.message('Looking up weather info now.')
+    else:
+        resp.message('Nice to see you too, %s' % from_number)
     return resp

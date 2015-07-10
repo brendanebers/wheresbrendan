@@ -43,7 +43,7 @@ def get_positions():
 
 @app.route('/api/texting/', methods=['GET', 'POST'])
 def handle_texts():
-    print request.args
-    if request.args.get('From') == config.BRENDAN_NUMBER:
-        return str(texting.HandleIncoming(request.args.get('from')))
+    print request.values
+    if request.values.get('From') == config.BRENDAN_NUMBER:
+        return str(texting.HandleIncoming(request.values.get('From')))
     return "you're not brendan"
