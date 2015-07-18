@@ -11,6 +11,8 @@ Many thanks to [Sinan](https://github.com/sinanuozdemir) for helping me get star
 
 - [ ] Clone this project `git clone https://github.com/brendanebers/wheresbrendan.git`
 - [ ] [virtualenv](https://pypi.python.org/pypi/virtualenv/1.8.2)
+- [ ] PostgreSQL
+    - On Mac try [Postgres.app](http://postgresapp.com/)
 - [x] A dash of happiness with a sprinkle of rainbows
 
 #### VirtualEnv on Mac
@@ -72,11 +74,18 @@ If you're an unfortunate soul running **Windows** *cough* Brendan *cough*. You'l
 
 Now that you're in a virtual environment, get all the packages!
 
+If you're on Mac, you need to configure the path to pg_config so that the installation of `psycopg2` can find it. Assuming you used Postgres.app, add the following to `~/.bash_profile`:
+
+`PATH="/Applications/Postgres.app/Contents/Versions/9.4/bin:$PATH"`
+
+Adjust the path *before* running `pip`.
+
 ```bash
 pip install -r requirements.txt
 ```
 
 You'll need to do this anytime packages are added to or changed in [requirements.txt](/requirements.txt).
+
 
 ### Environment Variables
 
