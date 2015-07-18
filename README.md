@@ -13,6 +13,28 @@ Many thanks to [Sinan](https://github.com/sinanuozdemir) for helping me get star
 - [ ] [virtualenv](https://pypi.python.org/pypi/virtualenv/1.8.2)
 - [x] A dash of happiness with a sprinkle of rainbows
 
+#### VirtualEnv on Mac
+
+- Install [Homebrew](http://brew.sh/)
+- Ensure Homebrew apps are in the local PATH by adding the following to `~/.bash_profile`:
+
+```
+# Ensure user-installed binaries take precedence
+export PATH=/usr/local/bin:$PATH
+```
+
+- Install Python 2: `brew install python`
+- Install virtualenv: `pip install virtualenv`
+
+If virtualenv fails to install with errors about *unsupported hash type*, try:
+
+```
+brew install openssl
+brew link openssl --force
+brew uninstall python
+brew install python --with-brewed-openssl
+```
+
 
 ### Setup the Virtual Environment
 
