@@ -35,13 +35,18 @@ brew uninstall python
 brew install python --with-brewed-openssl
 ```
 
-
 ### Setup the Virtual Environment
 
 In a shell, navigate to `wheresbrendan` and run
 
 ```bash
 virtualenv
+```
+
+On Mac:
+
+```bash
+virtualenv .
 ```
 
 Now you'll be able to load a clean little environment without mucking with different package versions on your system.
