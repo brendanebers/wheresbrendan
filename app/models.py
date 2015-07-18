@@ -28,6 +28,11 @@ class Position(db.Model):
     city = db.Column(db.Unicode)
     # I think there's more, see https://pypi.python.org/pypi/geolocation-python
 
+    # Movement information:
+    distance_from_prev = db.Column(db.Float)
+    time_from_prev = db.Column(db.Float)
+    speed_from_prev = db.Column(db.Float)
+
     # Weather information, although this might want to be elsewhere.
     # temperature = db.Column(db.Float)
     # apparent_temperature = db.Column(db.Float)  # "Feels like"
@@ -71,6 +76,11 @@ def GetLastPositions(count, before=None):
         query = query.filter(Position.epoch<before)
     # Order by and limits must happen after any filters.
     return query.order_by(Position.epoch.desc()).limit(count)
+
+
+def GetPositionsByIds(ids):
+    """Returns a query object by a list of position ids."""
+    return Position.query.filter(Position.id.in_(ids))
 
 
 def _IsField(name, only, skip):

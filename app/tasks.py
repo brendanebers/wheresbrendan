@@ -44,7 +44,7 @@ def ScrapeData(feed=None, feeds=None):
 def PostFetch(points):
     """Async launches tasks that should be executed after fetching new data."""
     rows_json = json.dumps(models.RowsAsDicts(points))
-    # DistanceTraversed.delay(rows_json)
+    DistanceTraversed.delay(rows_json)
     # GeoInformation.delay(rows_json)
     # WeatherInformation.delay(rows_json)
 
@@ -65,15 +65,16 @@ class _Deltas(object):
             (Get(pos_2, 'latitude'), Get(pos_2, 'longitude')))
         self.meters = dist.meters
         self.time = abs(Get(pos_1, 'epoch') - Get(pos_2, 'epoch'))
-        self.speed = self.meters / self.time
+        self.rate = self.meters / self.time
 
     def UpdateRow(self, row):
         """Updates Position row with distance, rate, and elapsed time."""
 
         def Set(obj, attr, val):
-            if hasattr(obj, '__setitem__'):
+            if hasattr(obj, 'attr') or not hasattr(obj, '__setitem__'):
+                setattr(obj, attr, val)
+            else:
                 obj[attr] = val
-            setattr(obj, val)
 
         Set(row, 'distance_from_prev', self.meters)
         Set(row, 'time_from_prev', self.time)
@@ -90,19 +91,23 @@ def DistanceTraversed(rows_json):
     if not rows:
         return
 
-    rows.extend([r for r in models.GetLastPositions(1, rows[-1].epoch)])
+    previous = models.GetLastPositions(1, rows[-1]['epoch'])
+    rows.extend(models.RowsAsDicts(previous))
 
     if len(rows) < 2:
         return  # Can't compare distances between 1 object.
 
-    for idx, row in enumerate(rows[:-1]):
-        delta = _Delta(row, rows[idx+1])
-        delta.UpdateRow(row)
+    deltas = {}
+    for idx, row in enumerate(rows[:-1]):  # Don't calculate delta for last row.
+        deltas[row['id']] = _Deltas(row, rows[idx+1])
 
-    for row in rows[:-1]:
-        pass  # Save changes to these rows.
+    # Update the rows in the database.
+    row_objs = models.GetPositionsByIds(deltas.keys())
+    for row in row_objs:
+        deltas[row.id].UpdateRow(row)
+    db.session.commit()
 
-    TagMovementStates.delay(json.dumps(rows[:-1]))
+    # TagMovementStates.delay(json.dumps(models.RowsAsDicts(rows_objs)))
 
 
 @celery_app.task
@@ -180,6 +185,7 @@ def WeatherInformation(rows_json):
     # pressure, precipType, ozone, windBearing, dewPoint, precipProbability,
     # visibility
 
+
 @celery_app.task
 def TagMovementStates(rows_json):
     """Guesses if the recent points are stopped, moving, etc."""
@@ -187,8 +193,9 @@ def TagMovementStates(rows_json):
     # moving: .25 m/s < speed || distance > (10*60*.25) and time > 30 minutes
     # so, it's moving if its moving, or if there's been a gap of transmissions.
     # slow: .25 m/s < speed <= 4 m/s
-    # fast: 4 m/s < speed
-    # jumped: distance > 500m and time > 30 minutes
+    # fast: 2.5 m/s < speed
+    # jumped: distance > 5000m and time > 30 minutes
+    # We use 31 minutes to ensure more than 3+ transmissions were not present.
     rows = json.loads(rows_json)
     for row in rows:
         tags = set()
@@ -196,13 +203,16 @@ def TagMovementStates(rows_json):
             tags.add('stopped')
         if row['speed_from_prev'] > 0.25:
             tags.add('moving')
-            if tags['speed_from_prev'] > 4:
+            if tags['speed_from_prev'] > 2.5:  # 9km/h, 5.6mph
                 tags.add('fast')
             else:
                 tags.add('slow')
 
-        if tags['distance_from_prev'] >= 100 and tags['time'] > 30*60:
+        if tags['distance_from_prev'] >= 100 and tags['time_from_prev'] > 30*60:
             tags.add('moving')
 
-        if tags['distance_from_prev'] > 1000 and tags['time'] > 30*60:
+        if tags['distance_from_prev'] > 5000 and tags['time_from_prev'] > 31*60:
             tags.add('jumped')
+
+        if tags['time_from_prev'] > 31*60:
+            tags.add('resume')
