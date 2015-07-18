@@ -57,3 +57,6 @@ This is a little awkward.
 We don't really want to give you access to our database or let you play with our API keys,
 so you'll need to supply your own environment variables.
 See [config.py](/config.py) for what's missing, or get a hold of us if you think you're special.
+
+
+Content of this repository is copyright Brendan Ebers, 2015
