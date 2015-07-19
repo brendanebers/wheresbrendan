@@ -108,10 +108,12 @@ On Mac, the path to the Postgres utilities will be something like: `/Application
 Next, initialize the Migrate tables:
 
 ```
-python db_create.py
+python scripts/db_create.py
 ```
 
-Finally, apply all of the database migrations:
+### Apply Database Migrations
+
+To apply all of the database migrations that have not been applied to the current database, run:
 
 ```
 python db_repository/manage.py upgrade
@@ -121,8 +123,16 @@ python db_repository/manage.py upgrade
 You can make changes to the DB model classes and easily generate new database migrations, without having to manually define the tables. Make changes to `app/models.py` and then run:
 
 ```
-python db_migrate.py
+python scripts/db_migrate_models.py
 ```
+
+That will generate a new migration script in `db_repository/versions`. If you want to test your changes, be certain you are **NOT** pointing at the live database and run:
+
+```
+python db_repository/manage.py test
+```
+
+Don't forget to apply the migrations, as shown above.
 
 ---
 Content of this repository is copyright Brendan Ebers, 2015
