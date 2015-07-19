@@ -64,7 +64,7 @@ def writeShellFileHeader(f):
 	writeln(f, '!/bin/sh')
 
 
-def writeEnvConfigBody(f, is_windows, args, host):
+def writeEnvConfigBody(f, is_windows, args, host, dbname):
 	"""Writes the body of an environment specific config file.
 
 	Args:
@@ -72,11 +72,12 @@ def writeEnvConfigBody(f, is_windows, args, host):
 		is_windows: boolean indicating whether or not this running on Windows
 		args: command line arguments parsed by ArgumentParser
 		host: name of database host
+		dbname: name of the database
 	"""
 	writeln(f, '# Database')
 	
-	database_url = ('postgresql://%s:PASSWORD@%s:%d/%s_local' % 
-		(args.dbuser, host, args.dbport, args.dbname))
+	database_url = ('postgresql://%s:PASSWORD@%s:%d/%s' % 
+		(args.dbuser, host, args.dbport, dbname))
 	writeln(f, getStringKeyValue(is_windows, 'DATABASE_URL', database_url))
 
 	writeln(f, '')
@@ -137,7 +138,7 @@ if __name__ == '__main__':
 		if not is_windows:
 			writeShellFileHeader(f)
 
-		writeEnvConfigBody(f, is_windows, args, 'localhost')
+		writeEnvConfigBody(f, is_windows, args, 'localhost', '%s_local' % args.dbname)
 
 	filename = '%s-heroku.%s' % (args.user, file_extension)
 	pathname = os.path.join('environments', filename)
@@ -146,4 +147,4 @@ if __name__ == '__main__':
 		if not is_windows:
 			writeShellFileHeader(f)
 
-		writeEnvConfigBody(f, is_windows, args, 'REMOTE_HOST')
+		writeEnvConfigBody(f, is_windows, args, 'REMOTE_HOST', args.dbname)
