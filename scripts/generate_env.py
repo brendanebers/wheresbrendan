@@ -85,7 +85,8 @@ def writeEnvConfigBody(f, is_windows, args, host, dbname):
 	if is_windows:
 		writeln(f, 'call %s.bat' % args.user)
 	else:
-		writeln(f, 'source %s.sh' % args.user)
+		writeln(f, 'DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )')
+		writeln(f, 'source $DIR/%s.sh' % args.user)
 
 
 def writeMainConfigBody(f, is_windows, args):
