@@ -93,6 +93,8 @@ We don't really want to give you access to our database or let you play with our
 so you'll need to supply your own environment variables.
 See [scripts/generate_env.py](scripts/generate_env.py) and [scripts/README.md](scripts/README.md) for a tool to automatically generate environment-specific configuration scripts. 
 
+## Database
+
 ### Setting up the Database
 After installing the packages and loading your environment variables, create the local database user and database:
 
@@ -115,4 +117,12 @@ Finally, apply all of the database migrations:
 python db_repository/manage.py upgrade
 ```
 
+### Model Migrations
+You can make changes to the DB model classes and easily generate new database migrations, without having to manually define the tables. Make changes to `app/models.py` and then run:
+
+```
+python db_migrate.py
+```
+
+---
 Content of this repository is copyright Brendan Ebers, 2015
