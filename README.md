@@ -89,10 +89,30 @@ You'll need to do this anytime packages are added to or changed in [requirements
 
 ### Environment Variables
 
-This is a little awkward.
 We don't really want to give you access to our database or let you play with our API keys,
 so you'll need to supply your own environment variables.
-See [config.py](/config.py) for what's missing, or get a hold of us if you think you're special.
+See [scripts/generate_env.py](scripts/generate_env.py) and [scripts/README.md](scripts/README.md) for a tool to automatically generate environment-specific configuration scripts. 
 
+### Setting up the Database
+After installing the packages and loading your environment variables, create the local database user and database:
+
+```
+createuser -DELSP wheres_admin
+createdb -O wheres_admin wheres_local
+```
+
+On Mac, the path to the Postgres utilities will be something like: `/Applications/Postgres.app/Contents/Versions/9.4/bin`.
+
+Next, initialize the Migrate tables:
+
+```
+python db_create.py
+```
+
+Finally, apply all of the database migrations:
+
+```
+python db_repository/manage.py upgrade
+```
 
 Content of this repository is copyright Brendan Ebers, 2015
