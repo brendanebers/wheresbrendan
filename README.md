@@ -116,7 +116,7 @@ python scripts/db_create.py
 To apply all of the database migrations that have not been applied to the current database, run:
 
 ```
-python db_repository/manage.py upgrade
+python db/manage.py upgrade
 ```
 
 ### Model Migrations
@@ -126,10 +126,10 @@ You can make changes to the DB model classes and easily generate new database mi
 python scripts/db_migrate_models.py
 ```
 
-That will generate a new migration script in `db_repository/versions`. If you want to test your changes, be certain you are **NOT** pointing at the live database and run:
+That will generate a new migration script in `db/versions`. If you want to test your changes, be certain you are **NOT** pointing at the live database and run:
 
 ```
-python db_repository/manage.py test
+python db/manage.py test
 ```
 
 Don't forget to apply the migrations, as shown above.
