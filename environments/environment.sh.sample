@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Flask
+export SECRET_KEY=dev
+
+# Database
+export DATABASE_URL=asdf
+
+# Celery
+export CELERY_BROKER_URL=asdf
+
+# Google API
+export GOOGLE_API_KEY=asdf
+
+# Forecast IO
+# https://developer.forecast.io/
+export FORECAST_IO_API_KEY=sdf
+
+# Twillio
+export TWILIO_ACCOUNT_SID=asdf
+export TWILIO_AUTH_TOKEN=asdf
+export TWILIO_NUMBER=asdf
