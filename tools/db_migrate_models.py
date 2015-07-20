@@ -11,7 +11,7 @@ from config import SQLALCHEMY_DATABASE_URI
 from config import SQLALCHEMY_MIGRATE_REPO
 
 
-if __name__ == '__main__':
+def main():
 	print "Reading database version..."
 	current_version = api.db_version(SQLALCHEMY_DATABASE_URI, SQLALCHEMY_MIGRATE_REPO)
 	next_version = current_version + 1
@@ -33,3 +33,7 @@ if __name__ == '__main__':
 	print 'New migration saved as ', migration
 	print 'Dont forget to upgrade the database:'
 	print '  python db_repository/manage.py upgrade'
+
+
+if __name__ == '__main__':
+	main()
