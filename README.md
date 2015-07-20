@@ -91,7 +91,7 @@ You'll need to do this anytime packages are added to or changed in [requirements
 
 We don't really want to give you access to our database or let you play with our API keys,
 so you'll need to supply your own environment variables.
-See [scripts/generate_env.py](scripts/generate_env.py) and [scripts/README.md](scripts/README.md) for a tool to automatically generate environment-specific configuration scripts. 
+See [tools/generate_env.py](tools/generate_env.py) and [tools/README.md](tools/README.md) for a tool to automatically generate environment-specific configuration scripts. 
 
 ## Database
 
@@ -108,7 +108,7 @@ On Mac, the path to the Postgres utilities will be something like: `/Application
 Next, initialize the Migrate tables:
 
 ```
-python scripts/db_create.py
+python tools/db_create.py
 ```
 
 ### Apply Database Migrations
@@ -123,7 +123,7 @@ python db/manage.py upgrade
 You can make changes to the DB model classes and easily generate new database migrations, without having to manually define the tables. Make changes to `app/models.py` and then run:
 
 ```
-python scripts/db_migrate_models.py
+python tools/db_migrate_models.py
 ```
 
 That will generate a new migration script in `db/versions`. If you want to test your changes, be certain you are **NOT** pointing at the live database and run:
