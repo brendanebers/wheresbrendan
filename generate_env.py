@@ -7,7 +7,7 @@ import os
 import platform
 
 
-def parseArgs():
+def ParseArgs():
 	"""Parses command line arguments."""
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--user', default=getpass.getuser(),
@@ -29,7 +29,7 @@ def parseArgs():
 	return parser.parse_args()
 
 
-def getStringKeyValue(is_windows, key, value):
+def GetStringKeyValue(is_windows, key, value):
 	"""Creates an os-specific key/value environment variable.
 
 	Args:
@@ -44,7 +44,7 @@ def getStringKeyValue(is_windows, key, value):
 	return '%s %s="%s"' % (export, key, value)
 
 
-def writeln(f, text):
+def Writeln(f, text):
 	"""Writes a line of text including the platform appropriate new line separator(s).
 
 	Args:
@@ -55,16 +55,16 @@ def writeln(f, text):
 	f.write('\n')
 
 
-def writeShellFileHeader(f):
+def WriteShellFileHeader(f):
 	"""Writes the appropriate Bash shell header line to a shell script file.
 
 	Args:
 		f: open file
 	"""
-	writeln(f, '!/bin/sh')
+	Writeln(f, '!/bin/sh')
 
 
-def writeEnvConfigBody(f, is_windows, args, host, dbname):
+def WriteEnvConfigBody(f, is_windows, args, host, dbname):
 	"""Writes the body of an environment specific config file.
 
 	Args:
@@ -74,22 +74,22 @@ def writeEnvConfigBody(f, is_windows, args, host, dbname):
 		host: name of database host
 		dbname: name of the database
 	"""
-	writeln(f, '# Database')
+	Writeln(f, '# Database')
 	
 	database_url = ('postgresql://%s:PASSWORD@%s:%d/%s' % 
 		(args.dbuser, host, args.dbport, dbname))
-	writeln(f, getStringKeyValue(is_windows, 'DATABASE_URL', database_url))
+	Writeln(f, GetStringKeyValue(is_windows, 'DATABASE_URL', database_url))
 
-	writeln(f, '')
+	Writeln(f, '')
 
 	if is_windows:
-		writeln(f, 'call %s.bat' % args.user)
+		Writeln(f, 'call %s.bat' % args.user)
 	else:
-		writeln(f, 'DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )')
-		writeln(f, 'source $DIR/%s.sh' % args.user)
+		Writeln(f, 'DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )')
+		Writeln(f, 'source $DIR/%s.sh' % args.user)
 
 
-def writeMainConfigBody(f, is_windows, args):
+def WriteMainConfigBody(f, is_windows, args):
 	"""Writes the body of the primary config file.
 
 	Args:
@@ -97,28 +97,27 @@ def writeMainConfigBody(f, is_windows, args):
 		is_windows: boolean indicating whether or not this running on Windows
 		args: command line arguments parsed by ArgumentParser
 	"""
-	writeln(f, '# Flask')
-	writeln(f, getStringKeyValue(is_windows, 'SECRET_KEY', args.user))
-	writeln(f, '')
-	writeln(f, '# Celery')
-	writeln(f, getStringKeyValue(is_windows, 'CELERY_BROKER_URL', 'sqla+$DATABASE_URL'))
-	writeln(f, getStringKeyValue(is_windows, 'CELERY_RESULT_BACKEND', 'db+$DATABASE_URL'))
-	writeln(f, '')
-	writeln(f, '# Google API')
-	writeln(f, getStringKeyValue(is_windows, 'GOOGLE_API_KEY', args.google_key))
-	writeln(f, '')
-	writeln(f, '# Forecast IO')
-	writeln(f, getStringKeyValue(is_windows, 'FORECAST_IO_API_KEY', args.forecast_key))
-	writeln(f, '')
-	writeln(f, '# Twillio')
-	writeln(f, getStringKeyValue(is_windows, 'TWILIO_ACCOUNT_SID', args.twillio_sid))
-	writeln(f, getStringKeyValue(is_windows, 'TWILIO_AUTH_TOKEN', args.twillio_token))
-	writeln(f, getStringKeyValue(is_windows, 'TWILIO_NUMBER', args.twillio_number))
-	writeln(f, '')
+	Writeln(f, '# Flask')
+	Writeln(f, GetStringKeyValue(is_windows, 'SECRET_KEY', args.user))
+	Writeln(f, '')
+	Writeln(f, '# Celery')
+	Writeln(f, GetStringKeyValue(is_windows, 'CELERY_BROKER_URL', 'sqla+$DATABASE_URL'))
+	Writeln(f, GetStringKeyValue(is_windows, 'CELERY_RESULT_BACKEND', 'db+$DATABASE_URL'))
+	Writeln(f, '')
+	Writeln(f, '# Google API')
+	Writeln(f, GetStringKeyValue(is_windows, 'GOOGLE_API_KEY', args.google_key))
+	Writeln(f, '')
+	Writeln(f, '# Forecast IO')
+	Writeln(f, GetStringKeyValue(is_windows, 'FORECAST_IO_API_KEY', args.forecast_key))
+	Writeln(f, '')
+	Writeln(f, '# Twillio')
+	Writeln(f, GetStringKeyValue(is_windows, 'TWILIO_ACCOUNT_SID', args.twillio_sid))
+	Writeln(f, GetStringKeyValue(is_windows, 'TWILIO_AUTH_TOKEN', args.twillio_token))
+	Writeln(f, GetStringKeyValue(is_windows, 'TWILIO_NUMBER', args.twillio_number))
+	Writeln(f, '')
 
-
-if __name__ == '__main__':
-	args = parseArgs()
+def main():
+	args = ParseArgs()
 
 	is_windows =  platform.system().startswith('Windows')
 	file_extension = 'bat' if is_windows else 'sh'
@@ -128,24 +127,28 @@ if __name__ == '__main__':
 	print 'Creating main environment config in %s' % pathname
 	with open(pathname, 'w') as f:
 		if not is_windows:
-			writeShellFileHeader(f)
+			WriteShellFileHeader(f)
 
-		writeMainConfigBody(f, is_windows, args)
+		WriteMainConfigBody(f, is_windows, args)
 
 	filename = '%s-local.%s' % (args.user, file_extension)
 	pathname = os.path.join('environments', filename)
 	print 'Creating local environment config in %s' % pathname
 	with open(pathname, 'w') as f:
 		if not is_windows:
-			writeShellFileHeader(f)
+			WriteShellFileHeader(f)
 
-		writeEnvConfigBody(f, is_windows, args, 'localhost', '%s_local' % args.dbname)
+		WriteEnvConfigBody(f, is_windows, args, 'localhost', '%s_local' % args.dbname)
 
 	filename = '%s-heroku.%s' % (args.user, file_extension)
 	pathname = os.path.join('environments', filename)
 	print 'Creating Heroku environment config in %s' % pathname
 	with open(pathname, 'w') as f:
 		if not is_windows:
-			writeShellFileHeader(f)
+			WriteShellFileHeader(f)
 
-		writeEnvConfigBody(f, is_windows, args, 'REMOTE_HOST', args.dbname)
+		WriteEnvConfigBody(f, is_windows, args, 'REMOTE_HOST', args.dbname)
+
+
+if __name__ == '__main__':
+	main()
