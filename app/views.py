@@ -1,10 +1,10 @@
+"""Views for wheresbrendan application."""
+
 import datetime
 from dateutil import parser
-import flask
 from flask import request
 import json
 
-import config
 from app.flask_app import flask_app as app
 from app import models
 from app import texting
@@ -13,6 +13,7 @@ from app import texting
 @app.route('/')
 @app.route('/index')
 def index():
+    """Return the index page."""
     return app.send_static_file('index.html')
 
 
@@ -34,6 +35,7 @@ def _MakeEpoch(val, default):
 
 @app.route('/api/get_positions/')
 def get_positions():
+    """Return positions within specified time range."""
     start = _MakeEpoch(request.args.get('start'), 0)
     end = _MakeEpoch(request.args.get('end'), 999999999999)
     positions = models.PositionRange(start=start, end=end)
@@ -43,6 +45,7 @@ def get_positions():
 
 @app.route('/api/texting/', methods=['GET', 'POST'])
 def handle_texts():
+    """Handle POSTs from Twilio."""
     resp = texting.HandleIncoming(
         request.values.get('From'), request.values.get('Body'))
     return str(resp)
