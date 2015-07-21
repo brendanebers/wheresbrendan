@@ -1,5 +1,4 @@
 """Model classes and frequently used functions for data access."""
-import datetime
 
 from app.flask_app import db
 
@@ -14,7 +13,9 @@ class Feed(db.Model):
 
 
 class Position(db.Model):
+
     """A GPS point for a given feed that may include additional info."""
+
     id = db.Column(db.Integer, primary_key=True)
     epoch = db.Column(db.Integer, unique=True)
     latitude = db.Column(db.Float)
@@ -49,7 +50,7 @@ _BRENDAN_FEED = '0Ya905pdnjgy0NflhOoL0GRDzLKUJn1nf'
 
 
 def GetFeeds():
-    """Returns a list of tracked Spot feeds."""
+    """Return a list of tracked Spot feeds."""
     # Yup, we only care about Brendan.
     return [_BRENDAN_FEED]
 
@@ -58,28 +59,28 @@ def PositionRange(start=None, end=None):
     """Return a query object with optional start and end filters specified."""
     query = Position.query.filter()
     if start is not None:
-        query = query.filter(Position.epoch>=start)
+        query = query.filter(Position.epoch >= start)
     if end is not None:
-        query = query.filter(Position.epoch<=end)
+        query = query.filter(Position.epoch <= end)
     return query
 
 
 def PositionAt(epoch):
-    """Returns a query object where the epoch matches."""
-    return Position.query.filter(Position.epoch==epoch)
+    """Return a query object where the epoch matches."""
+    return Position.query.filter(Position.epoch == epoch)
 
 
 def GetLastPositions(count, before=None):
-    """Returns the last [count] points with epochs < before, if specified."""
+    """Return the last [count] points with epochs < before, if specified."""
     query = Position.query
     if before is not None:
-        query = query.filter(Position.epoch<before)
+        query = query.filter(Position.epoch < before)
     # Order by and limits must happen after any filters.
     return query.order_by(Position.epoch.desc()).limit(count)
 
 
 def GetPositionsByIds(ids):
-    """Returns a query object by a list of position ids."""
+    """Return a query object by a list of position ids."""
     return Position.query.filter(Position.id.in_(ids))
 
 
@@ -91,10 +92,10 @@ def _IsField(name, only, skip):
 
 
 def AsDict(obj, only=None, skip=None):
-    """Returns a dict of a row of data using attributes from the model class.
+    """Return a dict of a row of data using attributes from the model class.
 
     Args:
-        ojb: The object to return as a dictionary.
+        obj: The object to return as a dictionary.
         only: Optional list of fields that should be used in the dictionary.
         skip: Optional list of fields that should be skipped.
     """
@@ -105,5 +106,5 @@ def AsDict(obj, only=None, skip=None):
 
 
 def RowsAsDicts(rows, only=None, skip=None):
-    """Returns a list of dicts of data; see AsDict above."""
+    """Return a list of dicts of data; see AsDict above."""
     return [AsDict(row, only=only, skip=skip) for row in rows]
