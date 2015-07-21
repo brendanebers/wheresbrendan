@@ -1,3 +1,9 @@
+"""Task module contains celery related jobs.
+
+This module should be split into components in the future. It's currently
+getting a little bloated.
+"""
+
 import celery
 from celery import schedules
 from celery import decorators
@@ -21,7 +27,7 @@ celery_app.config_from_object('config')
 # http://celery.readthedocs.org/en/latest/userguide/periodic-tasks.html
 @decorators.periodic_task(run_every=schedules.crontab(minute='*/10'))
 def ScrapeData(feed=None, feeds=None):
-    """Scrapes and saves data for the given feed or feeds."""
+    """Scrape and save data for the given feed or feeds."""
     if feed:
         feeds = [feed]
     if not feeds:
@@ -50,11 +56,11 @@ def PostFetch(points):
 
 
 class _Deltas(object):
-    """Calculates distance, elapsed time, and rate between two positiions."""
+
+    """Calculate distance, elapsed time, and rate between two positiions."""
 
     def __init__(self, pos_1, pos_2):
-        """"Accepts Position objects or dictionaries."""
-
+        """"Accept Position objects or dictionaries."""
         def Get(obj, attr):
             if hasattr(obj, '__getitem__'):
                 return obj[attr]
@@ -68,8 +74,7 @@ class _Deltas(object):
         self.rate = self.meters / self.time
 
     def UpdateRow(self, row):
-        """Updates Position row with distance, rate, and elapsed time."""
-
+        """Update Position row with distance, rate, and elapsed time."""
         def Set(obj, attr, val):
             if hasattr(obj, 'attr') or not hasattr(obj, '__setitem__'):
                 setattr(obj, attr, val)
@@ -83,7 +88,7 @@ class _Deltas(object):
 
 @celery_app.task
 def DistanceTraversed(rows_json):
-    """Calculates and saves the distance and time traveled."""
+    """Calculate and saves the distance and time traveled."""
     rows = json.loads(rows_json)
 
     # Most recent first.
@@ -112,7 +117,7 @@ def DistanceTraversed(rows_json):
 
 @celery_app.task
 def GeoInformation(rows_json):
-    """Looks up geo information for given lat/long."""
+    """Look up geo information for given lat/long."""
     # Look at https://pypi.python.org/pypi/geopy
     # from geopy.geocoders import Nominatim
     # geolocator = Nominatim()
@@ -152,20 +157,20 @@ def GeoInformation(rows_json):
     # >>> print city_ascii
     # Mazatlan
     city = unicode(loc.city, 'utf-8')  # this can be encoded strangely.
-    city_ascii = unidecode.unidecode(city)
+    city_ascii = unidecode.unidecode(city)  # noqa
 
     country = unicode(loc.country, 'utf-8')
-    country_ascii = unidecode.unidecode(country)
+    country_ascii = unidecode.unidecode(country)  # noqa
 
 
 @celery_app.task
 def WeatherInformation(rows_json):
-    """Retrieves weather information for lat/long."""
+    """Retrieve weather information for lat/long."""
     # Look at https://pypi.python.org/pypi/pyql-weather/0.1  # Doesn't work
     # https://pypi.python.org/pypi/python-forecastio/
 
-    lat = -31.967819
-    lng = 115.87718
+    lat = -31.967819  # noqa
+    lng = 115.87718  # noqa
 
     rows = json.loads(rows_json)
     row = rows[0]
@@ -173,10 +178,10 @@ def WeatherInformation(rows_json):
         config.FORECAST_IO_API_KEY, row['latitude'], row['longitude'])
     current = forecast.currently()
     data = current.d
-    temperature = data['temperature']  # 27.23 celsius
-    feels_like = data['apparentTemperature']
-    humidity = data['humiditiy']  # 0.72 for 72%
-    summary = data['summary']  # like "Mostly Cloudy"
+    temperature = data['temperature']  # 27.23 celsius # noqa
+    feels_like = data['apparentTemperature']  # noqa
+    humidity = data['humiditiy']  # 0.72 for 72% # noqa
+    summary = data['summary']  # like "Mostly Cloudy" # noqa
     # What's precipIntensity
     # Do I care about cloudCover
     # windSpeed might be interesting.. am I getting blown off my motorcycle?
@@ -188,7 +193,7 @@ def WeatherInformation(rows_json):
 
 @celery_app.task
 def TagMovementStates(rows_json):
-    """Guesses if the recent points are stopped, moving, etc."""
+    """Guess if the recent points are stopped, moving, etc."""
     # stopped: speed <= 0.25 m/s
     # moving: .25 m/s < speed || distance > (10*60*.25) and time > 30 minutes
     # so, it's moving if its moving, or if there's been a gap of transmissions.

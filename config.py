@@ -1,3 +1,5 @@
+"""Configuration values for wheresbrendan application."""
+
 import os
 
 # For the Flask application
