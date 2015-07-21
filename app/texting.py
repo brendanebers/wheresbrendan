@@ -1,3 +1,5 @@
+"""Methods for sending and parsing text messages."""
+
 from twilio import rest
 from twilio import twiml
 
@@ -10,14 +12,15 @@ def _GetClient():
 
 
 def SendMessage(message):
-    """Sends a message to Brendan."""
+    """Send a message to Brendan."""
     client = _GetClient()
-    text_msg = client.messages.create(
+    # Returns a message object, I'm not sure what its purpose is.
+    client.messages.create(
         to=config.BRENDAN_NUMBER, from_=config.TWILIO_NUMBER, body=message)
 
 
 def HandleIncoming(from_number, original_message):
-    """Routes an incoming text message.
+    """Route an incoming text message.
 
     Args:
         from_number: The sender of the text message.
@@ -42,8 +45,9 @@ def HandleIncoming(from_number, original_message):
 
     return empty
 
+
 def _RespondWhere(from_number, message):
-    """Responds where a tracked spot is.
+    """Respond where a tracked spot is.
 
     Args:
         from_number: The number that sent the request.
@@ -53,15 +57,15 @@ def _RespondWhere(from_number, message):
     Returns:
         A twiml Response or None.
     """
-    feeds = _LookupFollowedFeeds(from_number)
-    resp = twilio.twiml.Response()
+    # feeds = _LookupFollowedFeeds(from_number)
+    resp = twiml.Response()
     resp.message(
         'Brendan is... dunno. The monkeys are still working on this feature.')
     return resp
 
 
 def _RespondWeather(from_number, message):
-    """Responds with weather info of current location, destination, or between.
+    """Respond with weather info of current location, destination, or between.
 
     This method responds asynchronously to valid requests.
 
@@ -79,7 +83,7 @@ def _RespondWeather(from_number, message):
         A twiml Response or None.
     """
     feed = _LookupOwnedFeed(from_number)
-    resp = twilio.twiml.Response()
+    resp = twiml.Response()
     if feed:
         resp.message("We'll get right on that sir *snicker*")
     else:
@@ -88,11 +92,11 @@ def _RespondWeather(from_number, message):
 
 
 def _LookupOwnedFeed(number):
-    """Returns a feed (str) or None that the number is the owner of."""
+    """Return a feed (str) or None that the number is the owner of."""
     if number == config.BRENDAN_NUMBER:
         return 'feed'  # Put a real feed here.
 
 
 def _LookupFollowedFeeds(number):
-    """Returns a list of feeds (str) that the given number is a follower of."""
+    """Return a list of feeds (str) that the given number is a follower of."""
     return []
