@@ -91,7 +91,7 @@ You'll need to do this anytime packages are added to or changed in [requirements
 
 We don't really want to give you access to our database or let you play with our API keys,
 so you'll need to supply your own environment variables.
-See [scripts/generate_env.py](scripts/generate_env.py) and [scripts/README.md](scripts/README.md) for a tool to automatically generate environment-specific configuration scripts. 
+See [generate_env.py](generate_env.py) and [generate_env.md](generate_env.md) for a tool to automatically generate environment-specific configuration scripts. 
 
 
 Content of this repository is copyright Brendan Ebers, 2015
