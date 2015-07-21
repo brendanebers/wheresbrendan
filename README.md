@@ -93,5 +93,46 @@ We don't really want to give you access to our database or let you play with our
 so you'll need to supply your own environment variables.
 See [generate_env.py](generate_env.py) and [generate_env.md](generate_env.md) for a tool to automatically generate environment-specific configuration scripts. 
 
+## Database
 
+### Setting up the Database
+After installing the packages and loading your environment variables, create the local database user and database:
+
+```
+createuser -DELSP wheres_admin
+createdb -O wheres_admin wheres_local
+```
+
+On Mac, the path to the Postgres utilities will be something like: `/Applications/Postgres.app/Contents/Versions/9.4/bin`.
+
+Next, initialize the Migrate tables:
+
+```
+python tools/db_create.py
+```
+
+### Apply Database Migrations
+
+To apply all of the database migrations that have not been applied to the current database, run:
+
+```
+python db/manage.py upgrade
+```
+
+### Model Migrations
+You can make changes to the DB model classes and easily generate new database migrations, without having to manually define the tables. Make changes to `app/models.py` and then run:
+
+```
+python tools/db_migrate_models.py
+```
+
+That will generate a new migration script in `db/versions`. If you want to test your changes, be certain you are **NOT** pointing at the live database and run:
+
+```
+python db/manage.py test
+```
+
+Don't forget to apply the migrations, as shown above.
+
+---
 Content of this repository is copyright Brendan Ebers, 2015
