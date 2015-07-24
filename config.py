@@ -1,3 +1,5 @@
+"""Configuration values for wheresbrendan application."""
+
 import os
 
 # For the Flask application
@@ -14,14 +16,14 @@ OPENID_PROVIDERS = [
 # Database configuration
 basedir = os.path.abspath(os.path.dirname(__file__))
 SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
-SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
+SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db')
 
 # Celery configuration
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 BROKER_CONNECTION_TIMEOUT = 30
-BROKER_POOL_LIMIT = 1 # Will decrease connection usage
+BROKER_POOL_LIMIT = 1  # Will decrease connection usage
 CELERY_ENABLE_UTC = True
 CELERY_SEND_EVENTS = False
 CELERY_EVENT_QUEUE_EXPIRE = 60

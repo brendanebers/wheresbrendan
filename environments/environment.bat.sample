@@ -1,0 +1,20 @@
+# Flask
+set SECRET_KEY=dev
+
+# Database
+set DATABASE_URL=asdf
+
+# Celery
+set CELERY_BROKER_URL=asdf
+
+# Google API
+set GOOGLE_API_KEY=asdf
+
+# Forecast IO
+# https://developer.forecast.io/
+set FORECAST_IO_API_KEY=sdf
+
+# Twillio
+set TWILIO_ACCOUNT_SID=asdf
+set TWILIO_AUTH_TOKEN=asdf
+set TWILIO_NUMBER=asdf

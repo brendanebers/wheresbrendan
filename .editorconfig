@@ -1,0 +1,29 @@
+# EditorConfig is awesome: http://EditorConfig.org
+#
+# Plugin for Atom: https://github.com/sindresorhus/atom-editorconfig#readme
+# Plugin for Sublime Text: https://github.com/sindresorhus/editorconfig-sublime#readme
+
+# top-most EditorConfig file
+root = true
+
+# Universal settings
+[*]
+insert_final_newline = true
+
+# Set standard charset
+[*.{js,md,py}]
+charset = utf-8
+
+[*.md]
+trim_trailing_whitespace = false
+
+# Python
+[*.py]
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+# Matches the exact files either package.json or .travis.yml
+[{package.json,.travis.yml}]
+indent_style = space
+indent_size = 2
