@@ -1,5 +1,9 @@
 """Functions and tools for interfacing with wordpress blog."""
 
+# It might be possible to write a wordpress plugin that'll make a simple post
+# to our API when a page is changed...
+# https://codex.wordpress.org/Plugin_API/Action_Reference/save_post
+
 # https://python-wordpress-xmlrpc.readthedocs.org
 import wordpress_xmlrpc
 from wordpress_xmlrpc.methods import posts as wp_posts
