@@ -49,4 +49,5 @@ def Current():
     position_rows = models.GetLastPositions(1)
     position = models.RowsAsDicts(position_rows)[0]
     position['elapsed'] = int(now.Now() - position['epoch'])
+    position['elapsed_humanized'] = now.HumanizeSeconds(position['elapsed'])
     return json.dumps(position)
