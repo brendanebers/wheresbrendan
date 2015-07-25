@@ -6,6 +6,7 @@ from flask import request
 import json
 
 from app.flask_app import flask_app as app
+from app import now
 from app import models
 
 
@@ -47,4 +48,5 @@ def Current():
     """Return the current location information."""
     position_rows = models.GetLastPositions(1)
     position = models.RowsAsDicts(position_rows)[0]
+    position['elapsed'] = int(now.Now() - position['epoch'])
     return json.dumps(position)
