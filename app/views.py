@@ -11,7 +11,7 @@ from app import models
 
 @app.route('/')
 @app.route('/index')
-def index():
+def Index():
     """Return the index page."""
     return app.send_static_file('index.html')
 
@@ -33,10 +33,18 @@ def _MakeEpoch(val, default):
 
 
 @app.route('/api/get_positions/')
-def get_positions():
+def GetPositions():
     """Return positions within specified time range."""
     start = _MakeEpoch(request.args.get('start'), 0)
     end = _MakeEpoch(request.args.get('end'), 999999999999)
     positions = models.PositionRange(start=start, end=end)
     return json.dumps(
         {'points': models.RowsAsDicts(positions, skip=['date_recorded'])})
+
+
+@app.route('/api/current/')
+def Current():
+    """Return the current location information."""
+    position_rows = models.GetLastPositions(1)
+    position = models.RowsAsDicts(position_rows)[0]
+    return json.dumps(position)
