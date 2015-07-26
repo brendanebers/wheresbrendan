@@ -9,6 +9,10 @@ from app import models
 from app.flask_app import db
 from app.tasks.celery_app import celery_app
 
+# Delete these once the celery issue has been resolved.
+from app.tasks import basic_geo
+from app.tasks import maps
+
 
 _BRENDAN_FEED = '0Ya905pdnjgy0NflhOoL0GRDzLKUJn1nf'
 
@@ -47,13 +51,15 @@ def PostFetch(positions):
     """Launch tasks that should be executed after fetching new data."""
     # Tasks that operate on all rows.
     rows_json = json.dumps(models.RowsAsDicts(positions))
-    celery_app.send_task('app.tasks.basic_geo.StoreDistanceTraversed',
-                         rows_json)
+    # celery_app.send_task('app.tasks.basic_geo.StoreDistanceTraversed',
+    #                      rows_json)
+    basic_geo.StoreDistanceTraversed(rows_json)
 
     # Tasks that only operate on a single row at a time.
     for position in positions:
         row_json = json.dumps(position)
-        celery_app.send_task('app.tasks.maps.StoreMapsInformation', row_json)
+        # celery_app.send_task('app.tasks.maps.StoreMapsInformation', row_json)
+        maps.StoreMapsInformation(row_json)
 
 
 # Run every 10 minutes.
