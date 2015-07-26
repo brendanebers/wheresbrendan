@@ -13,6 +13,7 @@ function initialize() {
   }
   map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
+  updateCurrent();
   updateData();
 }
 
@@ -64,6 +65,23 @@ function updateData() {
         alert("Ruh-roh, we got some sort of error, try retyping the dates?");
       }
   });
+}
+
+function updateCurrent() {
+  $.ajax({
+    url: '/api/current/',
+    success: function(data) {
+      data = $.parseJSON(data);
+      var city = data.city;
+      var country = data.country;
+      var since = data.elapsed_humanized;
+      var url = ('<a href="http://google.com/maps/place/' + city + ',+' +
+                 country + '" target="_blank">' + city + ', ' + country +
+                 '</a>');
+      $('#slacking-header').html('He\'s in ' + url);
+      $('#slacking-sub').text('For the last ' + since);
+    }
+  })
 }
 
 
