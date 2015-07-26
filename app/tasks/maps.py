@@ -122,7 +122,7 @@ def SearchByNameNear(name, lat, lng):
     return results
 
 
-# This task's name will be registered in app/tasks/spot.py
+# This task's name is registered in app/tasks/spot.py
 @celery_app.task
 def StoreMapsInformation(row_json):
     """Store location information for a given row."""

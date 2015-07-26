@@ -45,9 +45,15 @@ def StoreSingleFeedData(feed):
 
 def PostFetch(positions):
     """Launch tasks that should be executed after fetching new data."""
+    # Tasks that operate on all rows.
     rows_json = json.dumps(models.RowsAsDicts(positions))
     celery_app.send_task('app.tasks.basic_geo.StoreDistanceTraversed',
                          rows_json)
+
+    # Tasks that only operate on a single row at a time.
+    for position in positions:
+        row_json = json.dumps(position)
+        celery_app.send_task('app.tasks.maps.StoreMapsInformation', row_json)
 
 
 # Run every 10 minutes.
