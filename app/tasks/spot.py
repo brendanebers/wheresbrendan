@@ -38,11 +38,13 @@ def GetFeedPositions(feed, start=0, limit=1000):
 
 def StoreSingleFeedData(feed):
     """Store new Spot data for given feed."""
+    print 'Storing data for feed %s' % feed
     positions = GetFeedPositions(feed)
     positions = [p for p in positions if not models.PositionAt(p.epoch).count()]
     if positions:
+        print '  fetched %d new points for feed %s' % (len(positions), feed)
         for position in positions:
-            db.session.add(p)
+            db.session.add(position)
         db.session.commit()
         PostFetch(positions)
 
@@ -69,6 +71,7 @@ def PostFetch(positions):
 @decorators.periodic_task(run_every=schedules.crontab(minute='*/10'))
 def StoreNewData(feed=None, feeds=None):
     """Store new Spot data for given feed, feeds, or all feeds."""
+    print 'Storing new spot data'
     if feed:
         feeds = [feed]
     if not feeds:

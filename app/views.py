@@ -59,5 +59,6 @@ def Current():
 @app.route('/api/spot_fetch/')
 def TemporarySpotFetch():
     """Temporary, syncronous method for getting spot data."""
+    print 'View call to store new spot data'
     spot.StoreNewData()
     return 'success!'
