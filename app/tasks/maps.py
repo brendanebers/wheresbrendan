@@ -1,10 +1,8 @@
 """Functions for interacting with maps and geo data."""
 
-import pprint
-
 import googlemaps  # https://github.com/googlemaps/google-maps-services-python
 import json
-import unidecode
+# import unidecode
 
 import config
 from app import models
@@ -12,11 +10,13 @@ from app.models import db
 from app.tasks import basic_geo
 from app.tasks.celery_app import celery_app
 
+
 class Component(object):
 
+    """Stores an address component."""
+
     def __init__(self, component):
-        print 'component is'
-        pprint.pprint(component)
+        """Constructor."""
         self.long_name = component.get('long_name')
         self.short_name = component.get('short_name')
         self.types = component.get('types', [])
