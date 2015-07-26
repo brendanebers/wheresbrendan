@@ -9,6 +9,9 @@ from app.flask_app import flask_app as app
 from app import now
 from app import models
 
+# Delete once we're back to asyncronous
+from app.tasks import spot
+
 
 @app.route('/')
 @app.route('/index')
@@ -51,3 +54,10 @@ def Current():
     position['elapsed'] = int(now.Now() - position['epoch'])
     position['elapsed_humanized'] = now.HumanizeSeconds(position['elapsed'])
     return json.dumps(position)
+
+
+@app.route('/api/spot_fetch/')
+def TemporarySpotFetch():
+    """Temporary, syncronous method for getting spot data."""
+    spot.StoreNewData()
+    return 'success!'
