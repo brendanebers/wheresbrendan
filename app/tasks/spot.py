@@ -7,7 +7,7 @@ import urllib2
 
 from app import models
 from app.flask_app import db
-from app.tasks.celery_app import celery_app
+from app.tasks.celery_app import celery_app  # noqa  # need for Async tasks
 
 # Delete these once the celery issue has been resolved.
 from app.tasks import basic_geo
@@ -38,7 +38,7 @@ def GetFeedPositions(feed, start=0, limit=1000):
 
 def StoreSingleFeedData(feed):
     """Store new Spot data for given feed."""
-    positions = GetFeedPositions()
+    positions = GetFeedPositions(feed)
     positions = [p for p in positions if not models.PositionAt(p.epoch).count()]
     if positions:
         for position in positions:
@@ -49,15 +49,17 @@ def StoreSingleFeedData(feed):
 
 def PostFetch(positions):
     """Launch tasks that should be executed after fetching new data."""
+    rows_dict = models.RowsAsDicts(positions)
+
     # Tasks that operate on all rows.
-    rows_json = json.dumps(models.RowsAsDicts(positions))
+    rows_json = json.dumps(rows_dict)
     # celery_app.send_task('app.tasks.basic_geo.StoreDistanceTraversed',
     #                      rows_json)
     basic_geo.StoreDistanceTraversed(rows_json)
 
     # Tasks that only operate on a single row at a time.
-    for position in positions:
-        row_json = json.dumps(position)
+    for row_dict in rows_dict:
+        row_json = json.dumps(row_dict)
         # celery_app.send_task('app.tasks.maps.StoreMapsInformation', row_json)
         maps.StoreMapsInformation(row_json)
 
