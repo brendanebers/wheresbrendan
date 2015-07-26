@@ -26,6 +26,7 @@ class Position(db.Model):
 
     # Geo information:
     country = db.Column(db.Unicode)
+    state = db.Column(db.Unicode)
     city = db.Column(db.Unicode)
     # I think there's more, see https://pypi.python.org/pypi/geolocation-python
 
