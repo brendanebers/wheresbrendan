@@ -2,23 +2,29 @@
 
 import googlemaps  # https://github.com/googlemaps/google-maps-services-python
 import json
-import unidecode
+# import unidecode
 
 import config
+from app import models
+from app.models import db
 from app.tasks import basic_geo
 from app.tasks.celery_app import celery_app
+
+
+class Component(object):
+
+    """Stores an address component."""
+
+    def __init__(self, component):
+        """Constructor."""
+        self.long_name = component.get('long_name')
+        self.short_name = component.get('short_name')
+        self.types = component.get('types', [])
 
 
 class MapLocation(object):
 
     """Parses a maps result."""
-
-    class Component(object):
-
-        def __init__(self, component):
-            self.long_name = component.get('long_name')
-            self.short_name = component.get('short_name')
-            self.types = component.get('types', [])
 
     def __init__(self, result):
         """Initialize object with a map geocode result."""
@@ -40,16 +46,16 @@ class MapLocation(object):
         self._country = None  # Most often a county or so
 
         for component in result['address_components']:
-            if 'sublocality' in component['types']:
-                self._sublocality = self.Component(component)
+            if 'sublocality_level_1' in component['types']:
+                self._sublocality = Component(component)
             elif 'locality' in component['types']:
-                self._locality = self.Component(component)
+                self._locality = Component(component)
             elif 'administrative_area_level_1' in component['types']:
-                self._admin_1 = self.Component(component)
+                self._admin_1 = Component(component)
             elif 'administrative_area_level_2' in component['types']:
-                self._admin_2 = self.Component(component)
+                self._admin_2 = Component(component)
             elif 'country' in component['types']:
-                self._country = self.Component(component)
+                self._country = Component(component)
 
         # Let's make it easier to debug when things inevitably go wrong.
         self.components = result['address_components']
@@ -67,12 +73,12 @@ class MapLocation(object):
     @property
     def county(self):
         """The county component, if any."""
-        return self._admin_1
+        return self._admin_2
 
     @property
     def state(self):
         """The state component."""
-        return self._admin_2
+        return self._admin_1
 
     @property
     def country(self):
@@ -91,7 +97,7 @@ def _Client():
 def SearchByLatLng(lat, lng):
     """Perform a maps search by lat lng."""
     maps = _Client()
-    results = maps.reverse(lat=lat, lng=lng)
+    results = maps.reverse_geocode((lat, lng))
     return [MapLocation(result) for result in results]
 
 
@@ -116,22 +122,33 @@ def SearchByNameNear(name, lat, lng):
     return results
 
 
-# This task's name will be registered in app/tasks/spot.py
+# This task's name is registered in app/tasks/spot.py
 @celery_app.task
 def StoreMapsInformation(row_json):
     """Store location information for a given row."""
+    print 'Retrieving maps info for Position ID %s' % row_json['id']
     row = json.loads(row_json)
     results = SearchByLatLng(row['latitude'], row['longitude'])
     loc = results[0]
 
-    city = loc.city
-    city_ascii = unidecode.unidecode(city)  # noqa
+    city = loc.city and loc.city.long_name or None
+    # city_ascii = unidecode.unidecode(city)  # noqa
 
-    state = loc.state
-    state_ascii = unidecode.unidecode(state)  # noqa
+    state = loc.state and loc.state.long_name or None
+    # state_ascii = unidecode.unidecode(state)  # noqa
 
-    country = loc.country
-    country_ascii = unidecode.unidecode(country)  # noqa
+    country = loc.country and loc.country.long_name or None
+    # country_ascii = unidecode.unidecode(country)  # noqa
+
+    rows = [r for r in models.GetPositionsByIds([row['id']])]
+    if not rows:
+        print 'An error has occurred, row %s was not found' % row['id']
+        return
+    row = rows[0]
+    row.city = city
+    row.state = state
+    row.country = country
+    db.session.commit()
 
     # I would like to store state or province or whatever.
     # I did some test searched for "Santa Fe near Guadalajara" and they would
