@@ -67,7 +67,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <span class="paper-font-title">Menu</span>
           </paper-toolbar>
 
-          <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
+          <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onDataRouteClick">
 
               <a data-route="now" href="/now">
                 <iron-icon icon="maps:my-location"></iron-icon>
@@ -92,7 +92,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-icon-button icon="refresh"></paper-icon-button>
 
             <!-- Application name -->
-            <div class="middle paper-font-display2 app-name">Where's Brendan</div>
+            <div class="middle paper-font-display1 app-name">Where's Brendan</div>
           </paper-toolbar>
 
           <!-- Main Content -->

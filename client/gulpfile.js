@@ -20,6 +20,7 @@ var merge = require('merge-stream');
 var path = require('path');
 var fs = require('fs');
 var glob = require('glob');
+var replace = require('gulp-replace');
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -174,6 +175,19 @@ gulp.task('precache', function (callback) {
   });
 });
 
+gulp.task('move', function () {
+  var app = gulp.src([
+    'dist/**/*',
+  ], {
+    dot: true
+  }).pipe(replace('"scripts/', '"/static/scripts/'))
+    .pipe(replace('"images/', '"/static/images/'))
+    .pipe(replace('"elements/', '"/static/elements/'))
+    .pipe(replace('"bower_components/', '"/static/bower_components/'))
+    .pipe(replace('"styles/', '"/static/styles/'))
+    .pipe(gulp.dest('../app/static'));
+});
+
 // Clean Output Directory
 gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 
@@ -234,7 +248,7 @@ gulp.task('default', ['clean'], function (cb) {
     ['copy', 'styles'],
     'elements',
     ['jshint', 'images', 'fonts', 'html'],
-    'vulcanize', 'precache',
+    'vulcanize', 'precache', 'move',
     cb);
 });
 

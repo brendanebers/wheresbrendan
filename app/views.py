@@ -11,6 +11,8 @@ from app import models
 
 @app.route('/')
 @app.route('/index')
+@app.route('/then')
+@app.route('/now')
 def index():
     """Return the index page."""
     return app.send_static_file('index.html')
