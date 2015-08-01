@@ -182,7 +182,10 @@ gulp.task('clean', function (cb) {
 
 gulp.task('move', function () {
   var app = gulp.src([
-    'dist/**/*',
+    'dist/index.html',
+    'dist/manifest.json',
+    'dist/robots.txt',
+    'dist/favicon.ico',
   ], {
     dot: true
   }).pipe(replace('"scripts/', '"/static/scripts/'))
@@ -191,6 +194,24 @@ gulp.task('move', function () {
     .pipe(replace('"bower_components/', '"/static/bower_components/'))
     .pipe(replace('"styles/', '"/static/styles/'))
     .pipe(gulp.dest('../app/static'));
+
+  gulp.src('dist/images/**/*')
+    .pipe(gulp.dest('../app/static/images'));
+
+  gulp.src('dist/scripts/app.js')
+    .pipe(gulp.dest('../app/static/scripts'));
+
+  gulp.src('dist/scripts/app.js')
+    .pipe(gulp.dest('../app/static/scripts'));
+
+  gulp.src('dist/styles/main.css')
+    .pipe(gulp.dest('../app/static/styles'));
+
+  gulp.src('dist/elements/elements.vulcanized.html')
+    .pipe(gulp.dest('../app/static/elements'));
+
+  gulp.src('dist/bower_components/webcomponentsjs/webcomponents-lite.min.js')
+    .pipe(gulp.dest('../app/static/bower_components/webcomponentsjs'));
 });
 
 // Watch Files For Changes & Reload
