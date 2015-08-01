@@ -1,6 +1,22 @@
 <link rel="import" href="../../bower_components/google-map/google-map.html">
 <link rel="import" href="../../bower_components/google-map/google-map-marker.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="position-map-dialog.html">
+
+<!--
+I wanted to combine the dialog logic with the google-map-marker decalarations
+in a position-map-marker. However, this breaks resize on the google-map element
+
+google-map uses a <content select="google-map-marker"> to populate its list of
+markers. This select only inspects direct children, so nesting a
+google-map-marker inside of a position-map-marker prevents the map from adding
+it to its list of markers.
+
+So, can I just extend? Nope! Not an option Polymer 1.0.
+
+This feels a little hacked, but oh well. The dialog logic will go hide in its
+own component. If a point isn't worth having a dialog, it won't get one.
+--->
 
 <dom-module id="position-map">
   <style>
@@ -11,56 +27,109 @@
   </style>
 
   <template>
-      <iron-ajax url="/api/get_positions/" handle-as="json" last-response="{{response}}"></iron-ajax>
-      <!-- For development: url="/demo_positions.json" -->
-      <!-- For production: url="/api/get_positions/" -->
+    <iron-ajax
+      id="position_ajax"
+      url="/demo_positions.json"
+      handle-as="json"
+      last-response="{{response}}"></iron-ajax>
+    <!-- For development: url="/demo_positions.json" -->
+    <!-- For production: url="/api/get_positions/" -->
 
-      <google-map id="map" map="{{map}}" fit-to-markers>
-          <template id="repeated" is="dom-repeat" items="[[response.points]]" as="point">
-              <google-map-marker latitude="[[point.latitude]]" longitude="[[point.longitude]]" on-attach="resize"></google-map-marker>
-          </template>
-      </google-map>
+    <google-map id="map" map="{{map}}" fit-to-markers>
+      <template id="repeated" is="dom-repeat" items="{{response.points}}" as="point">
+        <google-map-marker title="&#9729; &#9788; &#9790; &#9748; &#x26C5;" latitude="{{point.latitude}}" longitude="{{point.longitude}}" map="{{map}}" click-events></google-map-marker>
+      </template>
+    </google-map>
+
+    <position-map-dialog id="point_dialog" point="{{selected}}"></position-map-dialog>
+
   </template>
 
 </dom-module>
+
+<!--
+<google-map-marker latitude="[[point.latitude]]" longitude="[[point.longitude]]" on-attach="resize"></google-map-marker>
+-->
+
 
 <script>
   Polymer({
     is: 'position-map',
 
     properties: {
-        startDate: {
-            observer: '_dateChanged'
-        },
-        endDate: {
-            observer: '_dateChanged'
-        }
+      map: {
+        type: Object
+      },
+      startDate: {
+        observer: '_dateChanged'
+      },
+      endDate: {
+        observer: '_dateChanged'
+      },
+      response: Object,
+      selected: {
+        type: Object
+      }
+    },
+
+    listeners: {
+      'google-map-marker-click': '_markerClicked'
     },
 
     observers: [
         '_bothChanged(startDate, endDate)'
     ],
 
+    _markerClicked: function(event) {
+      var point = this._getPoint(event.detail.latLng.G, event.detail.latLng.K);
+      if (point) {
+        this.selected = point;
+        this.$.point_dialog.openDialog();
+        console.log('we have a point! ' + point);
+        // Can we open up a dialog?
+        // document.querySelector('#point-' + point.epoch).openDialog();
+        // this.$[point.epoch].openDialog();
+      }
+    },
+
     attached: function() {
-        console.log('attached');
-        this.redraw();
+      console.log('attached');
+      this.redraw();
     },
 
     _dateChanged: function () {
-        // This fires twice as the dom is being rendered.
-        console.log('date changed ' + this.startDate + ' end ' + this.endDate);
+      // This fires twice as the dom is being rendered.
+      console.log('date changed ' + this.startDate + ' end ' + this.endDate);
     },
 
     _bothChanged: function(startDate, endDate) {
-        // This fires once when the dom is being rendered.
-        console.log('both changed ' + startDate + ' end ' + endDate);
+      // This fires once when the dom is being rendered.
+      console.log('both changed ' + startDate + ' end ' + endDate);
     },
 
     redraw: function() {
-        console.log('redrawing');
-        var ajax = document.querySelector('iron-ajax');
-        ajax.params = {'start': this.startDate, 'end': this.endDate};
-        ajax.generateRequest();
+      console.log('redrawing');
+      this.$.position_ajax.params = {
+        start: this.startDate, end: this.endDate};
+      this.$.position_ajax.generateRequest();
+    },
+
+    _getPoint: function(lat, lng) {
+      if (!this.response) {
+        return null;
+      }
+
+      // Because floats suck.
+      var eq = function(a, b) {
+        return Math.abs(a - b) < 0.00001;
+      };
+
+      for (var i = 0; i < this.response.points.length; i++) {
+        point = this.response.points[i]
+        if (eq(point.latitude, lat) && eq(point.longitude, lng)) {
+          return point;
+        }
+      }
     }
   });
 </script>
