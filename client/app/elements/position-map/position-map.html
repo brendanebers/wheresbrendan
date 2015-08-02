@@ -27,17 +27,43 @@ own component. If a point isn't worth having a dialog, it won't get one.
   </style>
 
   <template>
+    <!-- This should be off by default. -->
     <iron-ajax
-      id="position_ajax"
+      id="previous_ajax"
       url="/demo_positions.json"
       handle-as="json"
-      last-response="{{response}}"></iron-ajax>
+      last-response="{{response}}"
+      on-response="handlePrevious"></iron-ajax>
     <!-- For development: url="/demo_positions.json" -->
     <!-- For production: url="/api/get_positions/" -->
 
+    <iron-ajax
+      auto
+      id="current_ajax"
+      url="/current.json"
+      handle-as="json"
+      last-response="{{current}}"
+      on-response="handleCurrent"></iron-ajax>
+    <!-- For development: url="/current.json" -->
+    <!-- For production: url="/api/current/" -->
+
     <google-map id="map" map="{{map}}" fit-to-markers>
       <template id="repeated" is="dom-repeat" items="{{response.points}}" as="point">
-        <google-map-marker title="&#9729; &#9788; &#9790; &#9748; &#x26C5;" latitude="{{point.latitude}}" longitude="{{point.longitude}}" map="{{map}}" click-events></google-map-marker>
+        <google-map-marker
+          latitude="{{point.latitude}}"
+          longitude="{{point.longitude}}"
+          map="{{map}}"
+          click-events>
+        </google-map-marker>
+      </template>
+
+      <template is="dom-if" if="{{current}}">
+        <google-map-marker
+          latitude="{{current.latitude}}"
+          longitude="{{current.longitude}}"
+          map="{{map}}"
+          click-events>
+        </google-map-marker>
       </template>
     </google-map>
 
@@ -69,7 +95,8 @@ own component. If a point isn't worth having a dialog, it won't get one.
       response: Object,
       selected: {
         type: Object
-      }
+      },
+      current: Object
     },
 
     listeners: {
@@ -94,7 +121,7 @@ own component. If a point isn't worth having a dialog, it won't get one.
 
     attached: function() {
       console.log('attached');
-      this.redraw();
+      // this.redraw();
     },
 
     _dateChanged: function () {
@@ -109,9 +136,20 @@ own component. If a point isn't worth having a dialog, it won't get one.
 
     redraw: function() {
       console.log('redrawing');
-      this.$.position_ajax.params = {
+      this.$.previous_ajax.params = {
         start: this.startDate, end: this.endDate};
-      this.$.position_ajax.generateRequest();
+      this.$.previous_ajax.generateRequest();
+    },
+
+    handleCurrent: function(e, request) {
+      // Hide any old data that is being displayed.
+      console.log('current data showed up');
+      console.log(JSON.stringify(this.current));
+    },
+
+    handlePrevious: function(e, request) {
+      // Hide the current data.
+      console.log('old data showed up');
     },
 
     _getPoint: function(lat, lng) {
