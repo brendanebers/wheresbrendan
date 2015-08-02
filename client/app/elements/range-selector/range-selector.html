@@ -1,0 +1,41 @@
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
+
+
+<dom-module id="range-selector">
+  <template>
+    <paper-dialog id="range_dialog" entry-animation="slide-down-animation" exit-animation="slide-up-animation" modal>
+      <h2>Pick a date range</h2>
+        <input name="start" id="start_input" placeholder="Start Date" value="{{internalStartDate}}">
+        <br>
+        <input name="end" id="end_input" placeholder="End Date" value="{{internalEndDate}}">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm on-tap="updateRange">Accept</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'range-selector',
+
+    properties: {
+      startDate: String,
+      endDate: String,
+      internalStartDate: String,
+      internalEndDate: String
+    },
+
+    open: function() {
+      this.internalStartDate = this.startDate;
+      this.internalEndDate = this.endDate;
+      this.$.range_dialog.open();
+    },
+
+    updateRange: function() {
+      console.log('updating the date range');
+      this.startDate = this.internalStartDate;
+      this.endDate = this.internalEndDate;
+    },
+  });
+</script>
