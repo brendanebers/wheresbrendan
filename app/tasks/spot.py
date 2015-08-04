@@ -98,7 +98,11 @@ def _RawData(feed, start, limit):
     # }
     resp = data['response']
     if 'feedMessageResponse' in resp:  # No points available
-        return resp['feedMessageResponse']['messages']['message']
+        # This is a list, unless there's only one point - then it's a dict.
+        messages = resp['feedMessageResponse']['messages']['message']
+        if not isinstance(messages, list):
+            messages = [messages]
+        return messages
     return []
 
 
