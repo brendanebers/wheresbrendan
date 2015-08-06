@@ -7,7 +7,7 @@ import urllib2
 
 from app import models
 from app.flask_app import db
-from app.tasks.celery_app import celery_app
+from app.tasks.celery_app import celery_app  # noqa  # need for Async tasks
 
 
 _BRENDAN_FEED = '0Ya905pdnjgy0NflhOoL0GRDzLKUJn1nf'
@@ -34,20 +34,30 @@ def GetFeedPositions(feed, start=0, limit=1000):
 
 def StoreSingleFeedData(feed):
     """Store new Spot data for given feed."""
-    positions = GetFeedPositions()
+    print 'Storing data for feed %s' % feed
+    positions = GetFeedPositions(feed)
     positions = [p for p in positions if not models.PositionAt(p.epoch).count()]
     if positions:
+        print '  fetched %d new points for feed %s' % (len(positions), feed)
         for position in positions:
-            db.session.add(p)
+            db.session.add(position)
         db.session.commit()
         PostFetch(positions)
 
 
 def PostFetch(positions):
     """Launch tasks that should be executed after fetching new data."""
-    rows_json = json.dumps(models.RowsAsDicts(positions))
+    rows_dict = models.RowsAsDicts(positions)
+
+    # Tasks that operate on all rows.
+    rows_json = json.dumps(rows_dict)
     celery_app.send_task('app.tasks.basic_geo.StoreDistanceTraversed',
-                         rows_json)
+                         [rows_json])
+
+    # Tasks that only operate on a single row at a time.
+    for row_dict in rows_dict:
+        row_json = json.dumps(row_dict)
+        celery_app.send_task('app.tasks.maps.StoreMapsInformation', [row_json])
 
 
 # Run every 10 minutes.
@@ -55,6 +65,7 @@ def PostFetch(positions):
 @decorators.periodic_task(run_every=schedules.crontab(minute='*/10'))
 def StoreNewData(feed=None, feeds=None):
     """Store new Spot data for given feed, feeds, or all feeds."""
+    print 'Storing new spot data'
     if feed:
         feeds = [feed]
     if not feeds:
@@ -87,7 +98,11 @@ def _RawData(feed, start, limit):
     # }
     resp = data['response']
     if 'feedMessageResponse' in resp:  # No points available
-        return resp['feedMessageResponse']['messages']['message']
+        # This is a list, unless there's only one point - then it's a dict.
+        messages = resp['feedMessageResponse']['messages']['message']
+        if not isinstance(messages, list):
+            messages = [messages]
+        return messages
     return []
 
 

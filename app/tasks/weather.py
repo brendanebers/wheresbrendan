@@ -1,17 +1,11 @@
 """Lookup weather related information."""
 
-import datetime
 import forecastio  # https://pypi.python.org/pypi/python-forecastio/
 import json
 
 import config
+from app import now
 from app.tasks.celery_app import celery_app
-
-
-def _Now():
-    """The current time."""
-    return (datetime.datetime.utcnow() -
-            datetime.datetime(1970, 1, 1)).total_seconds()
 
 
 def GetWeather(lat, lng):
@@ -30,7 +24,7 @@ def GetForecastWeather(lat, lng, hours):
         raise ValueError('Forecast weather must be for the future.')
     elif hours > 48:
         raise ValueError('Forecast weather only available for 48 hours.')
-    target = _Now() + 3600 * hours  # The target timestamp.
+    target = now.Now() + 3600 * hours  # The target timestamp.
 
     weather = GetWeather(lat, lng)
     hourly = weather.hourly()
