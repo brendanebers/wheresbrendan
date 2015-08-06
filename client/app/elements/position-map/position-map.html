@@ -58,7 +58,7 @@ own component. If a point isn't worth having a dialog, it won't get one.
       </google-map-marker>
     </google-map>
 
-    <position-map-dialog id="point_dialog" point="{{selected}}"></position-map-dialog>
+    <position-map-dialog id="pointDialog" point="{{selected}}"></position-map-dialog>
 
   </template>
 
@@ -111,12 +111,14 @@ own component. If a point isn't worth having a dialog, it won't get one.
       if (point) {
         this.selected = point;
         // TODO(#25)
-        // this.$.point_dialog.openDialog();
+        // this.$.pointDialog.openDialog();
       }
     },
 
-    _bothChanged: function(startDate, endDate) {
+    _bothChanged: function() { //startDate, endDate) {
       // This fires when either startDate or endDate are changed
+      // this.startDate = startDate;
+      // this.endDate = endDate;
       this.redraw();
     },
 

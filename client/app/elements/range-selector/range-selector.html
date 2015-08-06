@@ -4,7 +4,7 @@
 
 <dom-module id="range-selector">
   <template>
-    <paper-dialog id="range_dialog" entry-animation="slide-down-animation" exit-animation="fade-out-animation" modal>
+    <paper-dialog id="rangeDialog" entry-animation="slide-down-animation" exit-animation="fade-out-animation" modal>
       <h2>Pick a date range</h2>
       <p>
         <input name="start" placeholder="Start Date" value="{{internalStartDate::input}}">
@@ -40,7 +40,7 @@
       if (!this.startDate || !this.endDate) {
         this._setDefaults();
       }
-      this.$.range_dialog.open();
+      this.$.rangeDialog.open();
     },
 
     _setDefaults: function() {

@@ -5,7 +5,7 @@
 
 <dom-module id="position-map-dialog">
   <template>
-    <paper-dialog id="position_dialog" entry-animation="fade-in-animation" exit-animation="fade-out-animation" modal>
+    <paper-dialog id="positionDialog" entry-animation="fade-in-animation" exit-animation="fade-out-animation" modal>
       <h2>{{title}}</h2>
       <paper-dialog-scrollable>
         Lorem ipsum... Brendan's lazy.
@@ -28,10 +28,10 @@
     },
     openDialog: function() {
       console.log('opening dialog!');
-      this.$.position_dialog.open();
+      this.$.positionDialog.open();
     },
     closeDialog: function() {
-      this.$.position_dialog.close();
+      this.$.positionDialog.close();
     },
     _updateStatics: function() {
       this.title = '';

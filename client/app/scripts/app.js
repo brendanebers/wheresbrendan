@@ -100,6 +100,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // I would like to create neater status info server side.
     // TODO(#7)
+    /*jshint unused:true */
     app.locationSince = 'There for ' + c.elapsed_humanized;
   };
 
