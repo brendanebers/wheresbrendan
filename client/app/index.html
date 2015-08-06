@@ -1,0 +1,180 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Where's Brendan" />
+  <title>Where's Brendan</title>
+  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+  <!-- Chrome for Android theme color -->
+  <meta name="theme-color" content="#303F9F">
+
+  <!-- Web Application Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Tile color for Win8 -->
+  <meta name="msapplication-TileColor" content="#3372DF">
+
+  <!-- Add to homescreen for Chrome on Android -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Where's Brendan">
+  <link rel="icon" sizes="192x192" href="images/touch/chrome-touch-icon-192x192.png">
+
+  <!-- Add to homescreen for Safari on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Where's Brendan">
+  <link rel="apple-touch-icon" href="images/touch/apple-touch-icon.png">
+
+  <!-- Tile icon for Win8 (144x144) -->
+  <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
+
+  <!-- build:css styles/main.css -->
+  <link rel="stylesheet" href="styles/main.css">
+  <!-- endbuild-->
+
+  <!-- build:js bower_components/webcomponentsjs/webcomponents-lite.min.js -->
+  <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <!-- endbuild -->
+
+  <!-- will be replaced with elements/elements.vulcanized.html -->
+  <link rel="import" href="elements/elements.html">
+  <!-- endreplace-->
+
+  <!--
+    If you're interested in emoji in the future, look here
+    http://emojisymbols.com/faq.php
+
+    Some favorites are
+    cloud  &#9729;
+    sun (white)  &#9788;
+    sun (black)  &#9728;
+    moon  &#9790;
+    rain  &#9748;
+    partly cloudy  &#9925;
+    thunder  &#9928;
+    snowman  &#9731;
+
+    I wanted to display them in marker tooltips as a quick hover-over indicator
+    of the weather at the position, but the partly cloudy one doesn't work.
+  -->
+</head>
+
+<body unresolved class="fullbleed layout vertical">
+  <span id="browser-sync-binding"></span>
+  <template is="dom-bind" id="app">
+
+    <iron-ajax
+      auto
+      id="current_ajax"
+      url="/api/current/"
+      handle-as="json"
+      last-response="{{current}}"
+      on-response="handleCurrent"></iron-ajax>
+    <!-- For development: url="/current.json" -->
+    <!-- For production: url="/api/current/" -->
+
+      <paper-drawer-panel id="paperDrawerPanel" responsive-width="1280px">
+        <div class="nav" drawer>
+
+          <!-- Drawer Toolbar -->
+          <paper-toolbar id="drawerToolbar">
+            <span class="paper-font-title">Menu</span>
+          </paper-toolbar>
+
+          <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onDataRouteClick">
+
+              <!-- <a> is necessary for page.js support. paper-item looks better. -->
+              <a href="/now" data-route="now" on-click="onDataRouteClick">
+                <paper-item>
+                  <iron-icon icon="maps:my-location"></iron-icon>
+                  <paper-item-body two-line>
+                    <div>{{currentLocation}}</div>
+                    <div secondary>{{locationSince}}</div>
+                  </paper-item-body>
+                </paper-item>
+              </a>
+
+              <a href="{{historyUrl}}" data-route="history" on-click="onHistoryRouteClick">
+                <paper-item>
+                  <iron-icon icon="maps:map"></iron-icon>
+                  <paper-item-body two-line>
+                    <div>History</div>
+                    <div secondary>
+                      <template is="dom-if" if="{{!startDate}}">No range selected</template>
+                      <template is="dom-if" if="{{startDate}}">
+                        <span>[[startDate]]</span> to <span>[[endDate]]</span>
+                      </template>
+                    </div>
+                  </paper-item-body>
+                </paper-item>
+              </a>
+
+          </paper-menu>
+          <template is="dom-if" if="{{showingHistory}}">
+            <hr>
+            <paper-menu>
+              <p  class="body-1"><a href="#" onclick="return false;" on-tap="showRangeSelector">Change Date Range</a></p>
+            </paper-menu>
+          </template>
+        </div>
+
+        <paper-header-panel main>
+
+          <!-- Main Toolbar -->
+          <paper-toolbar id="mainToolbar">
+            <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
+
+            <span class="flex"></span>
+
+            <paper-icon-button icon="refresh" on-tap="refreshCurrent()"></paper-icon-button>
+            <paper-icon-button icon="event" on-tap="showRangeSelector"></paper-icon-button>
+
+            <!-- Application name -->
+
+            <div class="middle middle-container center horizontal layout">
+              <div class="app-name">Where's Brendan</div>
+            </div>
+          </paper-toolbar>
+
+          <!-- Main Content -->
+            <iron-pages class="content" attr-for-selected="data-route" selected="{{selectedRoute()}}">
+
+              <section data-route="other-page" style="padding: 20px;">
+                <paper-material elevation="1">
+                  <p class="paper-font-subhead">Other Stuff</h2>
+                  <p class="paper-font-body2">Not sure what might go here yet, but something could.</p>
+                </paper-material>
+              </section>
+
+              <section data-route="map" id="then-section">
+                <range-selector start-date="{{startDate}}" end-date="{{endDate}}" id="rangeSelector" current-time="{{current.epoch}}"></range-selector>
+                <position-map start-date="{{startDate}}" end-date="{{endDate}}" current="{{current}}" route="[[route]]" id="positionMap"></position-map>
+              </section>
+
+            </iron-pages>
+
+        </paper-header-panel>
+
+      </paper-drawer-panel>
+  </template>
+
+  <!-- build:js scripts/app.js -->
+  <script src="scripts/app.js"></script>
+  <!-- endbuild-->
+</body>
+
+</html>

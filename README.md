@@ -87,6 +87,42 @@ pip install -r requirements.txt
 You'll need to do this anytime packages are added to or changed in [requirements.txt](/requirements.txt).
 
 
+### Packages for JS Development
+
+Development on the HTML and JavaScript required npm, bower, and gulp.
+To get npm on Linux:
+
+```bash
+apt-get install
+```
+
+Once npm is installed, from a command line run:
+
+```bash
+npm install -g gulp bower
+```
+
+Inside the JS and HTML directory, app/static, to install the necessary packages:
+
+```bash
+npm install && bower install
+```
+
+
+To test the files locally without compiling:
+
+```bash
+gulp serve
+```
+
+
+To build the files
+
+```bash
+gulp
+```
+
+
 ### Environment Variables
 
 We don't really want to give you access to our database or let you play with our API keys,
