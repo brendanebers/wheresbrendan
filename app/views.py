@@ -62,3 +62,9 @@ def TemporarySpotFetch():
     print 'View call to store new spot data'
     spot.StoreNewData()
     return 'success!'
+
+
+@app.route('/api/wordpress/')
+def NewWordpress():
+    """Updates local records of wordpress articles."""
+    return 'thanks!'
