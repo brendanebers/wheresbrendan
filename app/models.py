@@ -47,6 +47,26 @@ class Position(db.Model):
     # that would be super helpful for alerting me that I need to charge.
 
 
+class Post(db.Model):
+
+    """A blog post."""
+
+    id = db.Column(db.Integery, primary_key=True)
+
+    # Wordpress stuff.
+    post_id = db.Column(db.Integer, unique=True)
+    status = db.Column(db.Unicode)
+    title = db.Column(db.Unicode)
+    content = db.Column(db.Unicode)
+    timestamp = db.Column(db.Integer)
+    link = db.Column(db.Unicode)
+    location = db.Column(db.Unicode)
+
+    # These may be real or may be synthetic based off GPS positions.
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
+
+
 _BRENDAN_FEED = '0Ya905pdnjgy0NflhOoL0GRDzLKUJn1nf'
 
 
