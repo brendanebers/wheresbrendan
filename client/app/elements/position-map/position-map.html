@@ -29,27 +29,18 @@ own component. If a point isn't worth having a dialog, it won't get one.
   <template>
     <!-- This should be off by default. -->
     <iron-ajax
-      id="previous_ajax"
-      url="/demo_positions.json"
+      id="previousAjax"
+      url="/api/get_positions/"
       handle-as="json"
-      last-response="{{response}}"
-      on-response="handlePrevious"></iron-ajax>
+      on-response="handlePrevious"
+      debounce-duration="200"></iron-ajax>
     <!-- For development: url="/demo_positions.json" -->
     <!-- For production: url="/api/get_positions/" -->
 
-    <iron-ajax
-      auto
-      id="current_ajax"
-      url="/current.json"
-      handle-as="json"
-      last-response="{{current}}"
-      on-response="handleCurrent"></iron-ajax>
-    <!-- For development: url="/current.json" -->
-    <!-- For production: url="/api/current/" -->
-
     <google-map id="map" map="{{map}}" fit-to-markers>
-      <template id="repeated" is="dom-repeat" items="{{response.points}}" as="point">
+      <template id="repeated" is="dom-repeat" items="{{points}}" as="point">
         <google-map-marker
+          class="non-current"
           latitude="{{point.latitude}}"
           longitude="{{point.longitude}}"
           map="{{map}}"
@@ -57,14 +48,14 @@ own component. If a point isn't worth having a dialog, it won't get one.
         </google-map-marker>
       </template>
 
-      <template is="dom-if" if="{{current}}">
-        <google-map-marker
-          latitude="{{current.latitude}}"
-          longitude="{{current.longitude}}"
-          map="{{map}}"
-          click-events>
-        </google-map-marker>
-      </template>
+      <google-map-marker
+        latitude="{{current.latitude}}"
+        longitude="{{current.longitude}}"
+        map="{{map}}"
+        click-events
+        hidden$="{{!displayCurrent}}"
+        id="current">
+      </google-map-marker>
     </google-map>
 
     <position-map-dialog id="point_dialog" point="{{selected}}"></position-map-dialog>
@@ -83,79 +74,64 @@ own component. If a point isn't worth having a dialog, it won't get one.
     is: 'position-map',
 
     properties: {
-      map: {
-        type: Object
+      map: Object,
+      startDate: String,
+      endDate: String,
+      points: {
+        type: Array,
+        notify: true
       },
-      startDate: {
-        type: String,
-        observer: '_dateChanged'
-      },
-      endDate: {
-        type: String,
-        observer: '_dateChanged'
-      },
-      response: Object,
       selected: {
         type: Object
       },
-      current: Object
+      current: {
+        type: Object,
+        observer: '_currentChanged'
+      },
+      route: {
+        type: String,
+        observer: '_routeChanged'
+      },
+      displayCurrent: {
+        type: Boolean
+      }
     },
 
     listeners: {
-      'google-map-marker-click': '_markerClicked'
+      'google-map-marker-click': '_markerClicked',
+      'date-range-updated': 'rangeChanged'
     },
 
     observers: [
-        '_bothChanged(startDate, endDate)'
+      '_bothChanged(startDate, endDate)',
     ],
 
     _markerClicked: function(event) {
       var point = this._getPoint(event.detail.latLng.G, event.detail.latLng.K);
       if (point) {
         this.selected = point;
-        this.$.point_dialog.openDialog();
-        console.log('we have a point! ' + point);
-        // Can we open up a dialog?
-        // document.querySelector('#point-' + point.epoch).openDialog();
-        // this.$[point.epoch].openDialog();
+        // TODO(#25)
+        // this.$.point_dialog.openDialog();
       }
     },
 
-    attached: function() {
-      console.log('attached');
-      // this.redraw();
-    },
-
-    _dateChanged: function () {
-      // This fires twice as the dom is being rendered.
-      console.log('date changed ' + this.startDate + ' end ' + this.endDate);
-    },
-
     _bothChanged: function(startDate, endDate) {
-      // This fires once when the dom is being rendered.
-      console.log('both changed ' + startDate + ' end ' + endDate);
+      // This fires when either startDate or endDate are changed
+      this.redraw();
     },
 
     redraw: function() {
-      console.log('redrawing');
-      this.$.previous_ajax.params = {
+      this.$.previousAjax.params = {
         start: this.startDate, end: this.endDate};
-      this.$.previous_ajax.generateRequest();
+      this.$.previousAjax.generateRequest();
     },
 
-    handleCurrent: function(e, request) {
-      // Hide any old data that is being displayed.
-      console.log('current data showed up');
-      console.log(JSON.stringify(this.current));
-    },
-
-    handlePrevious: function(e, request) {
-      // Hide the current data.
-      console.log('old data showed up');
+    handlePrevious: function() {
+      this.points = this._points = this.$.previousAjax.lastResponse.points;
     },
 
     _getPoint: function(lat, lng) {
-      if (!this.response) {
+      if (!this.points) {
         return null;
       }
 
@@ -164,12 +140,53 @@ own component. If a point isn't worth having a dialog, it won't get one.
         return Math.abs(a - b) < 0.00001;
       };
 
-      for (var i = 0; i < this.response.points.length; i++) {
-        point = this.response.points[i]
+      var point;
+      for (var i = 0; i < this.points.length; i++) {
+        point = this.points[i];
         if (eq(point.latitude, lat) && eq(point.longitude, lng)) {
           return point;
         }
       }
-    }
+    },
+
+    _currentChanged: function() {
+      this.$.map.zoom = 6;
+    },
+
+    _destroyNonCurrent: function() {
+      if (this.points && this.points.length > 0) {
+        // There has got to be a prettier way to do this, but I can't find it.
+
+        this.points = [];
+        var current = this.$.current;
+        var map = this.$.map;
+        var m;
+
+        for (var i = 0; i < map.markers.length; i++) {
+          m = map.markers[i];
+          if (m !== current) {
+            m.marker.setMap(null);
+          }
+        }
+
+        map.markers = [current];
+
+        // map re-adds them for some reason, I think there's a delay between
+        // this.points being cleared and all of the dom elements being removed.
+        setTimeout(function() {
+          map.markers = [current];
+          map.zoom = 6;
+        }, 250);
+      }
+    },
+
+    _routeChanged: function() {
+      this.displayCurrent = app.route === 'now';
+      if (this.displayCurrent) {
+        this._destroyNonCurrent();
+      } else {
+        this.points = this._points;
+      }
+    },
   });
 </script>

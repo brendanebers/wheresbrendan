@@ -28,3 +28,8 @@ iron-pages.content {
 #then-section {
   height: 100%;
 }
+
+/* Both <a> and <paper-item> provide padding in a menu, do away with one. */
+a > paper-item {
+  padding: 0px !important;
+}

@@ -5,14 +5,13 @@
 
 <dom-module id="position-map-dialog">
   <template>
-    <paper-dialog id="position_dialog" entry-animation="slide-down-animation" exit-animation="slide-up-animation" modal>
+    <paper-dialog id="position_dialog" entry-animation="fade-in-animation" exit-animation="fade-out-animation" modal>
       <h2>{{title}}</h2>
       <paper-dialog-scrollable>
-        Lorem ipsum...
+        Lorem ipsum... Brendan's lazy.
       </paper-dialog-scrollable>
       <div class="buttons">
-        <paper-button dialog-dismiss>Cancel</paper-button>
-        <paper-button dialog-confirm>Accept</paper-button>
+        <paper-button dialog-dismiss>Neat</paper-button>
       </div>
     </paper-dialog>
   </template>
@@ -25,7 +24,7 @@
         type: Object,  // city, state, country, post, photos...
         observer: '_updateStatics',
       },
-      title: String,
+      title: String
     },
     openDialog: function() {
       console.log('opening dialog!');
@@ -35,7 +34,7 @@
       this.$.position_dialog.close();
     },
     _updateStatics: function() {
-      this.title = ''
+      this.title = '';
       if (this.point) {
         if (this.point.city) {
           this.title = this.point.city + ', ' + this.point.country;

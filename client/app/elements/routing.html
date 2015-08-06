@@ -15,14 +15,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // We use Page.js for routing. This is a Micro
     // client-side router inspired by the Express router
     // More info: https://visionmedia.github.io/page.js/
+
     page('/', '/now');
+
+    app.page = page;
 
     page('/now', function () {
       app.route = 'now';
     });
 
-    page('/then', function () {
-      app.route = 'then';
+    page('/history', function () {
+      app.route = 'history';
+      app.showRangeSelector();
+    });
+
+    page('/history/:startDate/to/:endDate', function(ctx, next) {
+      app.route = 'history';
+      app.historyUrl = ctx.canonicalPath;
+      app.startDate = ctx.params.startDate;
+      app.endDate = ctx.params.endDate;
     });
 
     /* Work in progress

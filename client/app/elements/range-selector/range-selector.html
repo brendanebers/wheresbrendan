@@ -4,13 +4,16 @@
 
 <dom-module id="range-selector">
   <template>
-    <paper-dialog id="range_dialog" entry-animation="slide-down-animation" exit-animation="slide-up-animation" modal>
+    <paper-dialog id="range_dialog" entry-animation="slide-down-animation" exit-animation="fade-out-animation" modal>
       <h2>Pick a date range</h2>
-        <input name="start" id="start_input" placeholder="Start Date" value="{{internalStartDate}}">
+      <p>
+        <input name="start" placeholder="Start Date" value="{{internalStartDate::input}}">
         <br>
-        <input name="end" id="end_input" placeholder="End Date" value="{{internalEndDate}}">
+        <input name="end" placeholder="End Date" value="{{internalEndDate::input}}">
+      </p>
+      <div class="buttons">
         <paper-button dialog-dismiss>Cancel</paper-button>
-        <paper-button dialog-confirm on-tap="updateRange">Accept</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="updateRange">Accept</paper-button>
       </div>
     </paper-dialog>
   </template>
@@ -20,22 +23,51 @@
     is: 'range-selector',
 
     properties: {
-      startDate: String,
-      endDate: String,
-      internalStartDate: String,
-      internalEndDate: String
+      startDate: {
+        type: String,
+        notify: true
+      },
+      endDate: {
+        type: String,
+        notify: true
+      },
+      currentTime: Number
     },
 
     open: function() {
       this.internalStartDate = this.startDate;
       this.internalEndDate = this.endDate;
+      if (!this.startDate || !this.endDate) {
+        this._setDefaults();
+      }
       this.$.range_dialog.open();
     },
 
+    _setDefaults: function() {
+      // Initialize start and end dates
+      var D = new Date();
+      if (this.currentTime) {
+        D = new Date(0);
+        D.setUTCSeconds(this.currentTime);
+      }
+
+      D.setDate(D.getDate() - 1);
+      var y = D.getFullYear();
+      var m = (D.getMonth() + 1 < 10 ? '0' : '') + (D.getMonth() + 1);
+      var d = (D.getDate() < 10 ? '0' : '') + D.getDate();
+      this.internalStartDate = y + '-' + m + '-' + d;
+
+      D.setDate(D.getDate() + 2);
+      y = D.getFullYear();
+      m = (D.getMonth() + 1 < 10 ? '0' : '') + (D.getMonth() + 1);
+      d = (D.getDate() < 10 ? '0' : '') + D.getDate();
+      this.internalEndDate = y + '-' + m + '-' + d;
+    },
+
     updateRange: function() {
-      console.log('updating the date range');
       this.startDate = this.internalStartDate;
       this.endDate = this.internalEndDate;
+      this.fire('date-range-updated');
     },
   });
 </script>

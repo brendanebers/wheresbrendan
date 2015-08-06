@@ -15,14 +15,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
   var app = document.querySelector('#app');
 
-  app.displayInstalledToast = function() {
-    document.querySelector('#caching-complete').show();
-  };
-
   // Listen for template bound event to know when bindings
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
-    console.log('Our app is ready to rock!');
+    // console.log('Our app is ready to rock!');
   });
 
   // See https://github.com/Polymer/polymer/issues/1381
@@ -55,12 +51,80 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', appName);
   });
 
-  // Close drawer after menu item is selected if drawerPanel is narrow
-  app.onDataRouteClick = function() {
+  app.hideDrawer = function() {
     var drawerPanel = document.querySelector('#paperDrawerPanel');
     if (drawerPanel.narrow) {
       drawerPanel.closeDrawer();
     }
+  };
+
+  // Close drawer after menu item is selected if drawerPanel is narrow
+  app.onDataRouteClick = function() {
+    app.hideDrawer();
+    app.showingHistory = (app.route === 'history');
+  };
+
+  app.onHistoryRouteClick = function() {
+    app.onDataRouteClick();
+    // If we don't have a date range, lets get a date range.
+    if (!app.startDate || !app.endDate) {
+      app.$.rangeSelector.open();
+    }
+  };
+
+  app.selectedRoute = function() {
+    // Can inspect app.route to see if it should be going elsewhere.
+    return 'map';
+  };
+
+  app.currentLocation = 'Somewhere in the world';
+  app.locationSince = 'Since whenever';
+
+  app.handleCurrent = function() {
+    var c = app.current;
+    var loc;
+    if (c.city) {
+      loc = c.city + ', ';
+    } else if (c.state) {
+      loc = c.state + ', ';
+    } else {
+      loc = 'Somewhere in ';
+    }
+    if (c.country) {
+      loc = loc + c.country;
+    }
+    if (loc === 'Somewhere in ') {
+      loc = 'No idea where he is...';
+    }
+    app.currentLocation = loc;
+
+    // I would like to create neater status info server side.
+    // TODO(#7)
+    app.locationSince = 'There for ' + c.elapsed_humanized;
+  };
+
+  app.historyUrl = '';
+  app.showingHistory = false;
+
+  app.makeHistoryUrl = function() {
+    if (app.startDate) {
+      app.historyUrl = ('/history/' + encodeURIComponent(app.startDate) +
+                        '/to/' + encodeURIComponent(app.endDate));
+    } else {
+      app.historyUrl = '/history';
+    }
+  };
+  app.makeHistoryUrl();
+
+  addEventListener('date-range-updated', function() {
+    // console.log('Date range was updated');
+    app.hideDrawer();
+    app.makeHistoryUrl();
+    page.replace(app.historyUrl, null, null, false);
+  });
+
+  app.showRangeSelector = function() {
+    app.$.rangeSelector.open();
   };
 
 })(document);
