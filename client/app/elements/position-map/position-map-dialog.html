@@ -1,0 +1,47 @@
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
+<!-- https://elements.polymer-project.org/elements/paper-dialog -->
+
+
+<dom-module id="position-map-dialog">
+  <template>
+    <paper-dialog id="positionDialog" entry-animation="fade-in-animation" exit-animation="fade-out-animation" modal>
+      <h2>{{title}}</h2>
+      <paper-dialog-scrollable>
+        Lorem ipsum... Brendan's lazy.
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Neat</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'position-map-dialog',
+    properties: {
+      point: {
+        type: Object,  // city, state, country, post, photos...
+        observer: '_updateStatics',
+      },
+      title: String
+    },
+    openDialog: function() {
+      console.log('opening dialog!');
+      this.$.positionDialog.open();
+    },
+    closeDialog: function() {
+      this.$.positionDialog.close();
+    },
+    _updateStatics: function() {
+      this.title = '';
+      if (this.point) {
+        if (this.point.city) {
+          this.title = this.point.city + ', ' + this.point.country;
+        } else {
+          this.title = 'Somewhere in ' + this.point.country;
+        }
+      }
+    }
+  });
+</script>

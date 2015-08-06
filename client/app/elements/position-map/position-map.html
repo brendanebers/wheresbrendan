@@ -1,0 +1,194 @@
+<link rel="import" href="../../bower_components/google-map/google-map.html">
+<link rel="import" href="../../bower_components/google-map/google-map-marker.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="position-map-dialog.html">
+
+<!--
+I wanted to combine the dialog logic with the google-map-marker decalarations
+in a position-map-marker. However, this breaks resize on the google-map element
+
+google-map uses a <content select="google-map-marker"> to populate its list of
+markers. This select only inspects direct children, so nesting a
+google-map-marker inside of a position-map-marker prevents the map from adding
+it to its list of markers.
+
+So, can I just extend? Nope! Not an option Polymer 1.0.
+
+This feels a little hacked, but oh well. The dialog logic will go hide in its
+own component. If a point isn't worth having a dialog, it won't get one.
+--->
+
+<dom-module id="position-map">
+  <style>
+    google-map {
+        height: 100%;
+        width: 100%;
+    }
+  </style>
+
+  <template>
+    <!-- This should be off by default. -->
+    <iron-ajax
+      id="previousAjax"
+      url="/api/get_positions/"
+      handle-as="json"
+      on-response="handlePrevious"
+      debounce-duration="200"></iron-ajax>
+    <!-- For development: url="/demo_positions.json" -->
+    <!-- For production: url="/api/get_positions/" -->
+
+    <google-map id="map" map="{{map}}" fit-to-markers>
+      <template id="repeated" is="dom-repeat" items="{{points}}" as="point">
+        <google-map-marker
+          class="non-current"
+          latitude="{{point.latitude}}"
+          longitude="{{point.longitude}}"
+          map="{{map}}"
+          click-events>
+        </google-map-marker>
+      </template>
+
+      <google-map-marker
+        latitude="{{current.latitude}}"
+        longitude="{{current.longitude}}"
+        map="{{map}}"
+        click-events
+        hidden$="{{!displayCurrent}}"
+        id="current">
+      </google-map-marker>
+    </google-map>
+
+    <position-map-dialog id="pointDialog" point="{{selected}}"></position-map-dialog>
+
+  </template>
+
+</dom-module>
+
+<!--
+<google-map-marker latitude="[[point.latitude]]" longitude="[[point.longitude]]" on-attach="resize"></google-map-marker>
+-->
+
+
+<script>
+  Polymer({
+    is: 'position-map',
+
+    properties: {
+      map: Object,
+      startDate: String,
+      endDate: String,
+      points: {
+        type: Array,
+        notify: true
+      },
+      selected: {
+        type: Object
+      },
+      current: {
+        type: Object,
+        observer: '_currentChanged'
+      },
+      route: {
+        type: String,
+        observer: '_routeChanged'
+      },
+      displayCurrent: {
+        type: Boolean
+      }
+    },
+
+    listeners: {
+      'google-map-marker-click': '_markerClicked',
+      'date-range-updated': 'rangeChanged'
+    },
+
+    observers: [
+      '_bothChanged(startDate, endDate)',
+    ],
+
+    _markerClicked: function(event) {
+      var point = this._getPoint(event.detail.latLng.G, event.detail.latLng.K);
+      if (point) {
+        this.selected = point;
+        // TODO(#25)
+        // this.$.pointDialog.openDialog();
+      }
+    },
+
+    _bothChanged: function() { //startDate, endDate) {
+      // This fires when either startDate or endDate are changed
+      // this.startDate = startDate;
+      // this.endDate = endDate;
+      this.redraw();
+    },
+
+    redraw: function() {
+      this.$.previousAjax.params = {
+        start: this.startDate, end: this.endDate};
+      this.$.previousAjax.generateRequest();
+    },
+
+    handlePrevious: function() {
+      this.points = this._points = this.$.previousAjax.lastResponse.points;
+    },
+
+    _getPoint: function(lat, lng) {
+      if (!this.points) {
+        return null;
+      }
+
+      // Because floats suck.
+      var eq = function(a, b) {
+        return Math.abs(a - b) < 0.00001;
+      };
+
+      var point;
+      for (var i = 0; i < this.points.length; i++) {
+        point = this.points[i];
+        if (eq(point.latitude, lat) && eq(point.longitude, lng)) {
+          return point;
+        }
+      }
+    },
+
+    _currentChanged: function() {
+      this.$.map.zoom = 6;
+    },
+
+    _destroyNonCurrent: function() {
+      if (this.points && this.points.length > 0) {
+        // There has got to be a prettier way to do this, but I can't find it.
+
+        this.points = [];
+        var current = this.$.current;
+        var map = this.$.map;
+        var m;
+
+        for (var i = 0; i < map.markers.length; i++) {
+          m = map.markers[i];
+          if (m !== current) {
+            m.marker.setMap(null);
+          }
+        }
+
+        map.markers = [current];
+
+        // map re-adds them for some reason, I think there's a delay between
+        // this.points being cleared and all of the dom elements being removed.
+        setTimeout(function() {
+          map.markers = [current];
+          map.zoom = 6;
+        }, 250);
+      }
+    },
+
+    _routeChanged: function() {
+      this.displayCurrent = app.route === 'now';
+      if (this.displayCurrent) {
+        this._destroyNonCurrent();
+      } else {
+        this.points = this._points;
+      }
+    },
+  });
+</script>

@@ -126,8 +126,8 @@ def SearchByNameNear(name, lat, lng):
 @celery_app.task
 def StoreMapsInformation(row_json):
     """Store location information for a given row."""
-    print 'Retrieving maps info for Position ID %s' % row_json['id']
     row = json.loads(row_json)
+    print 'Retrieving maps info for Position ID %s' % row['id']
     results = SearchByLatLng(row['latitude'], row['longitude'])
     loc = results[0]
 

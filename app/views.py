@@ -14,8 +14,10 @@ from app.tasks import spot
 
 
 @app.route('/')
-@app.route('/index')
-def Index():
+@app.route('/now')
+@app.route('/history')
+@app.route('/history/<start_date>/to/<end_date>')
+def Index(*args, **kwargs):
     """Return the index page."""
     return app.send_static_file('index.html')
 
