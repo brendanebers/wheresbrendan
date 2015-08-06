@@ -1,4 +1,12 @@
 <html><head><meta charset="UTF-8"><!--
+    @license
+    Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+    This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+    The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+    The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+    Code distributed by Google as part of the polymer project is also
+    subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+--><!--
 @license
 Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
 This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE
@@ -10536,6 +10544,8 @@ if (!window.Promise) {
 </style>
 
 
+
+
 <script>
 
   /**
@@ -13675,7 +13685,7 @@ Any number of components can use `<google-maps-api>` elements, and the library w
     --light-primary-color:      #BBDEFB;
     --text-primary-color:       #FFFFFF;
     --accent-color:             #FF5722;
-    --primary-background-color: #BBDEFB;
+    --primary-background-color: #FAFAFA;
     --primary-text-color:       #212121;
     --secondary-text-color:     #727272;
     --disabled-text-color:      #BDBDBD;
@@ -13699,6 +13709,657 @@ Any number of components can use `<google-maps-api>` elements, and the library w
    --paper-input-container-input-color: #fff;
   }
 </style>
+
+<script>
+
+  Polymer({
+
+    is: 'cascaded-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    properties: {
+
+      /** @type {!Polymer.IronMeta} */
+      _animationMeta: {
+        type: Object,
+        value: function() {
+          return new Polymer.IronMeta({type: 'animation'});
+        }
+      }
+
+    },
+
+    /**
+     * @param {{
+     *   animation: string,
+     *   nodes: !Array<!Element>,
+     *   nodeDelay: (number|undefined),
+     *   timing: (Object|undefined)
+     *  }} config
+     */
+    configure: function(config) {
+      var animationConstructor = /** @type {Function} */ (
+          this._animationMeta.byKey(config.animation));
+      if (!animationConstructor) {
+        console.warn(this.is + ':', 'constructor for', config.animation, 'not found!');
+        return;
+      }
+
+      this._animations = [];
+      var nodes = config.nodes;
+      var effects = [];
+      var nodeDelay = config.nodeDelay || 50;
+
+      config.timing = config.timing || {};
+      config.timing.delay = config.timing.delay || 0;
+
+      var oldDelay = config.timing.delay;
+      for (var node, index = 0; node = nodes[index]; index++) {
+        config.timing.delay += nodeDelay;
+        config.node = node;
+
+        var animation = new animationConstructor();
+        var effect = animation.configure(config);
+
+        this._animations.push(animation);
+        effects.push(effect);
+      }
+      config.timing.delay = oldDelay;
+
+      this._effect = new GroupEffect(effects);
+      return this._effect;
+    },
+
+    complete: function() {
+      for (var animation, index = 0; animation = this._animations[index]; index++) {
+        animation.complete(animation.config);
+      }
+    }
+
+  });
+
+</script>
+
+
+<script>
+
+  Polymer({
+
+    is: 'fade-in-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+      this._effect = new KeyframeEffect(node, [
+        {'opacity': '0'},
+        {'opacity': '1'}
+      ], this.timingFromConfig(config));
+      return this._effect;
+    }
+
+  });
+
+</script>
+
+
+<script>
+
+  Polymer({
+
+    is: 'fade-out-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+      this._effect = new KeyframeEffect(node, [
+        {'opacity': '1'},
+        {'opacity': '0'}
+      ], this.timingFromConfig(config));
+      return this._effect;
+    }
+
+  });
+
+</script>
+<script>
+
+  /**
+   * Use `Polymer.NeonSharedElementAnimationBehavior` to implement shared element animations.
+   * @polymerBehavior Polymer.NeonSharedElementAnimationBehavior
+   */
+  Polymer.NeonSharedElementAnimationBehaviorImpl = {
+
+    properties: {
+
+      /**
+       * Cached copy of shared elements.
+       */
+      sharedElements: {
+        type: Object
+      }
+
+    },
+
+    /**
+     * Finds shared elements based on `config`.
+     */
+    findSharedElements: function(config) {
+      var fromPage = config.fromPage;
+      var toPage = config.toPage;
+      if (!fromPage || !toPage) {
+        console.warn(this.is + ':', !fromPage ? 'fromPage' : 'toPage', 'is undefined!');
+        return null;
+      };
+
+      if (!fromPage.sharedElements || !toPage.sharedElements) {
+        console.warn(this.is + ':', 'sharedElements are undefined for', !fromPage.sharedElements ? fromPage : toPage);
+        return null;
+      };
+
+      var from = fromPage.sharedElements[config.id]
+      var to = toPage.sharedElements[config.id];
+
+      if (!from || !to) {
+        console.warn(this.is + ':', 'sharedElement with id', config.id, 'not found in', !from ? fromPage : toPage);
+        return null;
+      }
+
+      this.sharedElements = {
+        from: from,
+        to: to
+      };
+      return this.sharedElements;
+    }
+
+  };
+
+  /** @polymerBehavior Polymer.NeonSharedElementAnimationBehavior */
+  Polymer.NeonSharedElementAnimationBehavior = [
+    Polymer.NeonAnimationBehavior,
+    Polymer.NeonSharedElementAnimationBehaviorImpl
+  ];
+
+</script>
+
+
+<script>
+
+  Polymer({
+
+    is: 'hero-animation',
+
+    behaviors: [
+      Polymer.NeonSharedElementAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var shared = this.findSharedElements(config);
+      if (!shared) {
+        return;
+      }
+
+      var fromRect = shared.from.getBoundingClientRect();
+      var toRect = shared.to.getBoundingClientRect();
+
+      var deltaLeft = fromRect.left - toRect.left;
+      var deltaTop = fromRect.top - toRect.top;
+      var deltaWidth = fromRect.width / toRect.width;
+      var deltaHeight = fromRect.height / toRect.height;
+
+      this.setPrefixedProperty(shared.to, 'transformOrigin', '0 0');
+      shared.to.style.zIndex = 10000;
+      shared.from.style.visibility = 'hidden';
+
+      this._effect = new KeyframeEffect(shared.to, [
+        {'transform': 'translate(' + deltaLeft + 'px,' + deltaTop + 'px) scale(' + deltaWidth + ',' + deltaHeight + ')'},
+        {'transform': 'none'}
+      ], this.timingFromConfig(config));
+
+      return this._effect;
+    },
+
+    complete: function(config) {
+      var shared = this.findSharedElements(config);
+      if (!shared) {
+        return null;
+      }
+      shared.to.style.zIndex = '';
+      shared.from.style.visibility = '';
+    }
+
+  });
+
+</script>
+
+
+<script>
+
+  Polymer({
+
+    is: 'ripple-animation',
+
+    behaviors: [
+      Polymer.NeonSharedElementAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var shared = this.findSharedElements(config);
+      if (!shared) {
+        return null;
+      }
+
+      var translateX, translateY;
+      var toRect = shared.to.getBoundingClientRect();
+      if (config.gesture) {
+        translateX = config.gesture.x - (toRect.left + (toRect.width / 2));
+        translateY = config.gesture.y - (toRect.top + (toRect.height / 2));
+      } else {
+        var fromRect = shared.from.getBoundingClientRect();
+        translateX = (fromRect.left + (fromRect.width / 2)) - (toRect.left + (toRect.width / 2));
+        translateY = (fromRect.top + (fromRect.height / 2)) - (toRect.top + (toRect.height / 2));
+      }
+      var translate = 'translate(' + translateX + 'px,' + translateY + 'px)';
+
+      var size = Math.max(toRect.width + Math.abs(translateX) * 2, toRect.height + Math.abs(translateY) * 2);
+      var diameter = Math.sqrt(2 * size * size);
+      var scaleX = diameter / toRect.width;
+      var scaleY = diameter / toRect.height;
+      var scale = 'scale(' + scaleX + ',' + scaleY + ')';
+
+      this.setPrefixedProperty(shared.to, 'transformOrigin', '50% 50%');
+      shared.to.style.borderRadius = '50%';
+
+      this._effect = new KeyframeEffect(shared.to, [
+        {'transform': translate + ' scale(0)'},
+        {'transform': translate + ' ' + scale}
+      ], this.timingFromConfig(config));
+      return this._effect;
+    },
+
+    complete: function() {
+      if (this.sharedElements) {
+        this.setPrefixedProperty(this.sharedElements.to, 'transformOrigin', '');
+        this.sharedElements.to.style.borderRadius = '';
+      }
+    }
+
+  });
+
+</script>
+
+
+<script>
+  Polymer({
+    is: 'reverse-ripple-animation',
+
+    behaviors: [
+      Polymer.NeonSharedElementAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var shared = this.findSharedElements(config);
+      if (!shared) {
+        return null;
+      }
+
+      var translateX, translateY;
+      var fromRect = shared.from.getBoundingClientRect();
+      if (config.gesture) {
+        translateX = config.gesture.x - (fromRect.left + (fromRect.width / 2));
+        translateY = config.gesture.y - (fromRect.top + (fromRect.height / 2));
+      } else {
+        var toRect = shared.to.getBoundingClientRect();
+        translateX = (toRect.left + (toRect.width / 2)) - (fromRect.left + (fromRect.width / 2));
+        translateY = (toRect.top + (toRect.height / 2)) - (fromRect.top + (fromRect.height / 2));
+      }
+      var translate = 'translate(' + translateX + 'px,' + translateY + 'px)';
+
+      var size = Math.max(fromRect.width + Math.abs(translateX) * 2, fromRect.height + Math.abs(translateY) * 2);
+      var diameter = Math.sqrt(2 * size * size);
+      var scaleX = diameter / fromRect.width;
+      var scaleY = diameter / fromRect.height;
+      var scale = 'scale(' + scaleX + ',' + scaleY + ')';
+
+      this.setPrefixedProperty(shared.from, 'transformOrigin', '50% 50%');
+      shared.from.style.borderRadius = '50%';
+
+      this._effect = new KeyframeEffect(shared.from, [
+        {'transform': translate + ' ' + scale},
+        {'transform': translate + ' scale(0)'}
+      ], this.timingFromConfig(config));
+      return this._effect;
+    },
+
+    complete: function() {
+      if (this.sharedElements) {
+        this.setPrefixedProperty(this.sharedElements.from, 'transformOrigin', '');
+        this.sharedElements.from.style.borderRadius = '';
+      }
+    }
+  });
+</script>
+
+
+<script>
+
+  Polymer({
+
+    is: 'scale-down-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+
+      if (config.transformOrigin) {
+        this.setPrefixedProperty(node, 'transformOrigin', config.transformOrigin);
+      }
+
+      var scaleProperty = 'scale(0, 0)';
+      if (config.axis === 'x') {
+        scaleProperty = 'scale(0, 1)';
+      } else if (config.axis === 'y') {
+        scaleProperty = 'scale(1, 0)';
+      }
+
+      this._effect = new KeyframeEffect(node, [
+        {'transform': 'scale(1,1)'},
+        {'transform': scaleProperty}
+      ], this.timingFromConfig(config));
+
+      return this._effect;
+    }
+
+  });
+
+</script>
+
+
+<script>
+
+  Polymer({
+
+    is: 'scale-up-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+
+      if (config.transformOrigin) {
+        this.setPrefixedProperty(node, 'transformOrigin', config.transformOrigin);
+      }
+
+      var scaleProperty = 'scale(0)';
+      if (config.axis === 'x') {
+        scaleProperty = 'scale(0, 1)';
+      } else if (config.axis === 'y') {
+        scaleProperty = 'scale(1, 0)';
+      }
+
+      this._effect = new KeyframeEffect(node, [
+        {'transform': scaleProperty},
+        {'transform': 'scale(1, 1)'}
+      ], this.timingFromConfig(config));
+
+      return this._effect;
+    }
+
+  });
+
+</script>
+
+
+<script>
+
+  Polymer({
+
+    is: 'slide-from-left-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+
+      if (config.transformOrigin) {
+        this.setPrefixedProperty(node, 'transformOrigin', config.transformOrigin);
+      } else {
+        this.setPrefixedProperty(node, 'transformOrigin', '0 50%');
+      }
+
+      this._effect = new KeyframeEffect(node, [
+        {'transform': 'translateX(-100%)'},
+        {'transform': 'none'}
+      ], this.timingFromConfig(config));
+
+      return this._effect;
+    }
+
+  });
+
+</script>
+
+
+<script>
+
+  Polymer({
+
+    is: 'slide-from-right-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+
+      if (config.transformOrigin) {
+        this.setPrefixedProperty(node, 'transformOrigin', config.transformOrigin);
+      } else {
+        this.setPrefixedProperty(node, 'transformOrigin', '0 50%');
+      }
+
+      this._effect = new KeyframeEffect(node, [
+        {'transform': 'translateX(100%)'},
+        {'transform': 'none'}
+      ], this.timingFromConfig(config));
+
+      return this._effect;
+    }
+
+  });
+
+</script>
+
+
+<script>
+
+  Polymer({
+
+    is: 'slide-left-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+
+      if (config.transformOrigin) {
+        this.setPrefixedProperty(node, 'transformOrigin', config.transformOrigin);
+      } else {
+        this.setPrefixedProperty(node, 'transformOrigin', '0 50%');
+      }
+
+      this._effect = new KeyframeEffect(node, [
+        {'transform': 'none'},
+        {'transform': 'translateX(-100%)'}
+      ], this.timingFromConfig(config));
+
+      return this._effect;
+    }
+
+  });
+
+</script>
+
+
+<script>
+
+  Polymer({
+
+    is: 'slide-right-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+
+      if (config.transformOrigin) {
+        this.setPrefixedProperty(node, 'transformOrigin', config.transformOrigin);
+      } else {
+        this.setPrefixedProperty(node, 'transformOrigin', '0 50%');
+      }
+
+      this._effect = new KeyframeEffect(node, [
+        {'transform': 'none'},
+        {'transform': 'translateX(100%)'}
+      ], this.timingFromConfig(config));
+
+      return this._effect;
+    }
+
+  });
+
+</script>
+
+
+<script>
+
+  Polymer({
+
+    is: 'slide-up-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+
+      if (config.transformOrigin) {
+        this.setPrefixedProperty(node, 'transformOrigin', config.transformOrigin);
+      } else {
+        this.setPrefixedProperty(node, 'transformOrigin', '50% 0');
+      }
+
+      this._effect = new KeyframeEffect(node, [
+        {'transform': 'translate(0)'},
+        {'transform': 'translateY(-100%)'}
+      ], this.timingFromConfig(config));
+
+      return this._effect;
+    }
+
+  });
+
+</script>
+
+
+<script>
+
+  Polymer({
+
+    is: 'slide-down-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+
+      if (config.transformOrigin) {
+        this.setPrefixedProperty(node, 'transformOrigin', config.transformOrigin);
+      } else {
+        this.setPrefixedProperty(node, 'transformOrigin', '50% 0');
+      }
+
+      this._effect = new KeyframeEffect(node, [
+        {'transform': 'translateY(-100%)'},
+        {'transform': 'none'}
+      ], this.timingFromConfig(config));
+
+      return this._effect;
+    }
+
+  });
+
+</script>
+
+
+<script>
+
+  Polymer({
+
+    is: 'transform-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    /**
+     * @param {{
+     *   node: !Element,
+     *   transformOrigin: (string|undefined),
+     *   transformFrom: (string|undefined),
+     *   transformTo: (string|undefined),
+     *   timing: (Object|undefined)
+     * }} config
+     */
+    configure: function(config) {
+      var node = config.node;
+      var transformFrom = config.transformFrom || 'none';
+      var transformTo = config.transformTo || 'none';
+
+      if (config.transformOrigin) {
+        this.setPrefixedProperty(node, 'transformOrigin', config.transformOrigin);
+      }
+
+      this._effect = new KeyframeEffect(node, [
+        {'transform': transformFrom},
+        {'transform': transformTo}
+      ], this.timingFromConfig(config));
+
+      return this._effect;
+    }
+
+  });
+
+</script>
+
+
+
+
+
+
 <script>!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.page=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (process){
   /* globals require, module */
@@ -14627,14 +15288,25 @@ module.exports = Array.isArray || function (arr) {
     // We use Page.js for routing. This is a Micro
     // client-side router inspired by the Express router
     // More info: https://visionmedia.github.io/page.js/
+
     page('/', '/now');
+
+    app.page = page;
 
     page('/now', function () {
       app.route = 'now';
     });
 
-    page('/then', function () {
-      app.route = 'then';
+    page('/history', function () {
+      app.route = 'history';
+      app.showRangeSelector();
+    });
+
+    page('/history/:startDate/to/:endDate', function(ctx) {
+      app.route = 'history';
+      app.historyUrl = ctx.canonicalPath;
+      app.startDate = ctx.params.startDate;
+      app.endDate = ctx.params.endDate;
     });
 
     /* Work in progress
@@ -17151,6 +17823,60 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 })();
 
 </script>
+<dom-module id="paper-item-body" assetpath="../bower_components/paper-item/">
+
+  <style>
+
+    :host {
+      overflow: hidden; /* needed for text-overflow: ellipsis to work on ff */
+      @apply(--layout-vertical);
+      @apply(--layout-center-justified);
+      @apply(--layout-flex);
+    }
+
+    :host([two-line]) {
+      min-height: var(--paper-item-body-two-line-min-height, 72px);
+    }
+
+    :host([three-line]) {
+      min-height: var(--paper-item-body-three-line-min-height, 88px);
+    }
+
+    :host > ::content > * {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    :host > ::content [secondary] {
+      color: var(--paper-item-body-secondary-color, --secondary-text-color);
+      @apply(--paper-font-body1);
+
+      @apply(--paper-item-body-secondary);
+    }
+
+
+  </style>
+
+  <template>
+    <content></content>
+  </template>
+
+</dom-module>
+
+<script>
+
+(function() {
+
+  Polymer({
+
+    is: 'paper-item-body'
+
+  });
+
+})();
+
+</script>
 <dom-module id="paper-input-container" assetpath="../bower_components/paper-input/">
 
   <style>
@@ -19494,7 +20220,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     _fitToMarkersChanged: function() {
       // TODO(ericbidelman): respect user's zoom level.
-
       if (this.map && this.fitToMarkers) {
         var latLngBounds = new google.maps.LatLngBounds();
         for (var i = 0, m; m = this.markers[i]; ++i) {
@@ -19543,6 +20268,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   });
 
 </script>
+<dom-module id="position-map-dialog" assetpath="position-map/">
+  <template>
+    <paper-dialog id="positionDialog" entry-animation="fade-in-animation" exit-animation="fade-out-animation" modal="">
+      <h2>{{title}}</h2>
+      <paper-dialog-scrollable>
+        Lorem ipsum... Brendan's lazy.
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss="">Neat</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'position-map-dialog',
+    properties: {
+      point: {
+        type: Object,  // city, state, country, post, photos...
+        observer: '_updateStatics',
+      },
+      title: String
+    },
+    openDialog: function() {
+      console.log('opening dialog!');
+      this.$.positionDialog.open();
+    },
+    closeDialog: function() {
+      this.$.positionDialog.close();
+    },
+    _updateStatics: function() {
+      this.title = '';
+      if (this.point) {
+        if (this.point.city) {
+          this.title = this.point.city + ', ' + this.point.country;
+        } else {
+          this.title = 'Somewhere in ' + this.point.country;
+        }
+      }
+    }
+  });
+</script>
 <dom-module id="position-map" assetpath="position-map/">
   <style>
     google-map {
@@ -19552,57 +20319,220 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 
   <template>
-      <iron-ajax url="/api/get_positions/" handle-as="json" last-response="{{response}}"></iron-ajax>
-      
-      
+    
+    <iron-ajax id="previousAjax" url="/api/get_positions/" handle-as="json" on-response="handlePrevious" debounce-duration="200"></iron-ajax>
+    
+    
 
-      <google-map id="map" map="{{map}}" fit-to-markers="">
-          <template id="repeated" is="dom-repeat" items="[[response.points]]" as="point">
-              <google-map-marker latitude="[[point.latitude]]" longitude="[[point.longitude]]" on-attach="resize"></google-map-marker>
-          </template>
-      </google-map>
+    <google-map id="map" map="{{map}}" fit-to-markers="">
+      <template id="repeated" is="dom-repeat" items="{{points}}" as="point">
+        <google-map-marker class="non-current" latitude="{{point.latitude}}" longitude="{{point.longitude}}" map="{{map}}" click-events="">
+        </google-map-marker>
+      </template>
+
+      <google-map-marker latitude="{{current.latitude}}" longitude="{{current.longitude}}" map="{{map}}" click-events="" hidden$="{{!displayCurrent}}" id="current">
+      </google-map-marker>
+    </google-map>
+
+    <position-map-dialog id="pointDialog" point="{{selected}}"></position-map-dialog>
+
   </template>
 
 </dom-module>
+
+
+
 
 <script>
   Polymer({
     is: 'position-map',
 
     properties: {
-        startDate: {
-            observer: '_dateChanged'
-        },
-        endDate: {
-            observer: '_dateChanged'
-        }
+      map: Object,
+      startDate: String,
+      endDate: String,
+      points: {
+        type: Array,
+        notify: true
+      },
+      selected: {
+        type: Object
+      },
+      current: {
+        type: Object,
+        observer: '_currentChanged'
+      },
+      route: {
+        type: String,
+        observer: '_routeChanged'
+      },
+      displayCurrent: {
+        type: Boolean
+      }
+    },
+
+    listeners: {
+      'google-map-marker-click': '_markerClicked',
+      'date-range-updated': 'rangeChanged'
     },
 
     observers: [
-        '_bothChanged(startDate, endDate)'
+      '_bothChanged(startDate, endDate)',
     ],
 
-    attached: function() {
-        console.log('attached');
-        this.redraw();
+    _markerClicked: function(event) {
+      var point = this._getPoint(event.detail.latLng.G, event.detail.latLng.K);
+      if (point) {
+        this.selected = point;
+        // TODO(#25)
+        // this.$.pointDialog.openDialog();
+      }
     },
 
-    _dateChanged: function () {
-        // This fires twice as the dom is being rendered.
-        console.log('date changed ' + this.startDate + ' end ' + this.endDate);
-    },
-
-    _bothChanged: function(startDate, endDate) {
-        // This fires once when the dom is being rendered.
-        console.log('both changed ' + startDate + ' end ' + endDate);
+    _bothChanged: function() { //startDate, endDate) {
+      // This fires when either startDate or endDate are changed
+      // this.startDate = startDate;
+      // this.endDate = endDate;
+      this.redraw();
     },
 
     redraw: function() {
-        console.log('redrawing');
-        var ajax = document.querySelector('iron-ajax');
-        ajax.params = {'start': this.startDate, 'end': this.endDate};
-        ajax.generateRequest();
-    }
+      this.$.previousAjax.params = {
+        start: this.startDate, end: this.endDate};
+      this.$.previousAjax.generateRequest();
+    },
+
+    handlePrevious: function() {
+      this.points = this._points = this.$.previousAjax.lastResponse.points;
+    },
+
+    _getPoint: function(lat, lng) {
+      if (!this.points) {
+        return null;
+      }
+
+      // Because floats suck.
+      var eq = function(a, b) {
+        return Math.abs(a - b) < 0.00001;
+      };
+
+      var point;
+      for (var i = 0; i < this.points.length; i++) {
+        point = this.points[i];
+        if (eq(point.latitude, lat) && eq(point.longitude, lng)) {
+          return point;
+        }
+      }
+    },
+
+    _currentChanged: function() {
+      this.$.map.zoom = 6;
+    },
+
+    _destroyNonCurrent: function() {
+      if (this.points && this.points.length > 0) {
+        // There has got to be a prettier way to do this, but I can't find it.
+
+        this.points = [];
+        var current = this.$.current;
+        var map = this.$.map;
+        var m;
+
+        for (var i = 0; i < map.markers.length; i++) {
+          m = map.markers[i];
+          if (m !== current) {
+            m.marker.setMap(null);
+          }
+        }
+
+        map.markers = [current];
+
+        // map re-adds them for some reason, I think there's a delay between
+        // this.points being cleared and all of the dom elements being removed.
+        setTimeout(function() {
+          map.markers = [current];
+          map.zoom = 6;
+        }, 250);
+      }
+    },
+
+    _routeChanged: function() {
+      this.displayCurrent = app.route === 'now';
+      if (this.displayCurrent) {
+        this._destroyNonCurrent();
+      } else {
+        this.points = this._points;
+      }
+    },
+  });
+</script>
+<dom-module id="range-selector" assetpath="range-selector/">
+  <template>
+    <paper-dialog id="rangeDialog" entry-animation="slide-down-animation" exit-animation="fade-out-animation" modal="">
+      <h2>Pick a date range</h2>
+      <p>
+        <input name="start" placeholder="Start Date" value="{{internalStartDate::input}}">
+        <br>
+        <input name="end" placeholder="End Date" value="{{internalEndDate::input}}">
+      </p>
+      <div class="buttons">
+        <paper-button dialog-dismiss="">Cancel</paper-button>
+        <paper-button dialog-confirm="" autofocus="" on-tap="updateRange">Accept</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'range-selector',
+
+    properties: {
+      startDate: {
+        type: String,
+        notify: true
+      },
+      endDate: {
+        type: String,
+        notify: true
+      },
+      currentTime: Number
+    },
+
+    open: function() {
+      this.internalStartDate = this.startDate;
+      this.internalEndDate = this.endDate;
+      if (!this.startDate || !this.endDate) {
+        this._setDefaults();
+      }
+      this.$.rangeDialog.open();
+    },
+
+    _setDefaults: function() {
+      // Initialize start and end dates
+      var D = new Date();
+      if (this.currentTime) {
+        D = new Date(0);
+        D.setUTCSeconds(this.currentTime);
+      }
+
+      D.setDate(D.getDate() - 1);
+      var y = D.getFullYear();
+      var m = (D.getMonth() + 1 < 10 ? '0' : '') + (D.getMonth() + 1);
+      var d = (D.getDate() < 10 ? '0' : '') + D.getDate();
+      this.internalStartDate = y + '-' + m + '-' + d;
+
+      D.setDate(D.getDate() + 2);
+      y = D.getFullYear();
+      m = (D.getMonth() + 1 < 10 ? '0' : '') + (D.getMonth() + 1);
+      d = (D.getDate() < 10 ? '0' : '') + D.getDate();
+      this.internalEndDate = y + '-' + m + '-' + d;
+    },
+
+    updateRange: function() {
+      this.startDate = this.internalStartDate;
+      this.endDate = this.internalEndDate;
+      this.fire('date-range-updated');
+    },
   });
 </script>
 </div></body></html>
