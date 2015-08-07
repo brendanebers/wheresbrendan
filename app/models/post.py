@@ -28,7 +28,8 @@ def SavePosts(posts):
     old_posts = {}
     for post in posts:
         old = Post.query.filter(Post.post_id == post.post_id).first()
-        old_posts[post.post_id] = old
+        if old:
+            old_posts[post.post_id] = old
 
     for post in posts:
         if post.post_id not in old_posts:
