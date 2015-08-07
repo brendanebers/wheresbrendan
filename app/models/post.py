@@ -23,6 +23,16 @@ class Post(db.Model):
     longitude = db.Column(db.Float)
 
 
+def PositionRange(start=None, end=None):
+    """Return a query object with optional start and end filters specified."""
+    query = Post.query.filter()
+    if start is not None:
+        query = query.filter(Post.epoch >= start)
+    if end is not None:
+        query = query.filter(Post.epoch <= end)
+    return query
+
+
 def SavePosts(posts):
     """Save new posts and update existing posts."""
     old_posts = {}
