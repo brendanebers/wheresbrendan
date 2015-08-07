@@ -7,7 +7,7 @@ import urllib2
 
 from app.models import position as model
 from app.models import utils
-from app.tasks.celery_app import celery_app  # noqa  # need for Async tasks
+from app.tasks.celery_app import celery_app
 
 
 _BRENDAN_FEED = '0Ya905pdnjgy0NflhOoL0GRDzLKUJn1nf'

@@ -12,6 +12,7 @@ import config
 from app import now
 from app.models import post as post_model
 from app.models import position as position_model
+from app.tasks.celery_app import celery_app as app
 
 
 def _Client():
@@ -75,6 +76,8 @@ def UpdatePosts():
     post_model.SavePosts(posts)
 
 
+# Name referenced in views.py
+@app.task
 def UpdatePost(post_id):
     """Ensure given post id is up to date in the database."""
     post = GetPost(post_id)

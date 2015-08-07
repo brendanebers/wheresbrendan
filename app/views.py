@@ -9,6 +9,7 @@ from app.flask_app import flask_app as app
 from app import now
 from app.models import position as position_model
 from app.models import utils
+from app.tasks.celery_app import celery_app
 
 # Delete once we're back to asyncronous
 from app.tasks import spot
@@ -70,4 +71,6 @@ def TemporarySpotFetch():
 @app.route('/api/wordpress/')
 def NewWordpress():
     """Updates local records of wordpress articles."""
-    return 'thanks!'
+    post_id = str(request.values.get('id'))
+    celery_app.send_task('app.tasks.wordpress.UpdatePost', [post_id])
+    return 'added to the processing queue'

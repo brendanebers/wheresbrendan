@@ -10,3 +10,4 @@ from app.tasks.semantic_tagging import *
 from app.tasks.spot import *
 from app.tasks.texting import *
 from app.tasks.weather import *
+from app.tasks.wordpress import *

@@ -13,7 +13,7 @@ add_action( 'publish_post', 'published_notification', 10, 2 );
 function published_notification( $ID, $post ) {
   // TODO: Point this at the actual site sometime.
   // POST is probably smarter.
-  $url = 'http://runbebersrun.herokuapp.com/api/wordpress/' . $ID;
+  $url = 'http://wheresbrendan.com/api/wordpress/?id=' . $ID;
 
   try {
     file_get_contents($url);
