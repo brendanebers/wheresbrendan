@@ -23,7 +23,7 @@ class Post(db.Model):
     longitude = db.Column(db.Float)
 
 
-def PositionRange(start=None, end=None):
+def PostRange(start=None, end=None):
     """Return a query object with optional start and end filters specified."""
     query = Post.query.filter()
     if start is not None:
