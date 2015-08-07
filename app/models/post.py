@@ -14,7 +14,7 @@ class Post(db.Model):
     status = db.Column(db.Unicode)
     title = db.Column(db.Unicode)
     content = db.Column(db.Unicode)
-    timestamp = db.Column(db.Integer)
+    epoch = db.Column(db.Integer)
     link = db.Column(db.Unicode)
     location = db.Column(db.Unicode)
 
