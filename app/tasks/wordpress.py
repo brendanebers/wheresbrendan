@@ -90,3 +90,5 @@ def AddPosition(post):
         post.latitude = position.latitude
         post.longitude = position.longitude
         post_model.UpdatePosts([post])
+    else:
+        print 'No position could be found before the given post.'
