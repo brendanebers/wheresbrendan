@@ -4,6 +4,7 @@ import datetime
 from dateutil import parser
 from flask import request
 import json
+import os
 
 from app.flask_app import flask_app as app
 from app import now
@@ -23,6 +24,11 @@ from app.tasks import spot
 def Index(*args, **kwargs):
     """Return the index page."""
     return app.send_static_file('index.html')
+
+
+@app.route('/images/<filename>')
+def Images(filename):
+    return app.send_static_file(os.path.join('images', filename))
 
 
 def _MakeEpoch(val, default):
@@ -56,7 +62,7 @@ def GetHistory():
     """Return positions and posts within specified time range."""
     start = _MakeEpoch(request.args.get('start'), 0)
     end = _MakeEpoch(request.args.get('end'), 999999999999)
-    history = combined_model.PositionRange(start=start, end=end)
+    history = combined_model.Range(start=start, end=end)
     return json.dumps({'points': history})
 
 
