@@ -20326,7 +20326,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <google-map id="map" map="{{map}}" fit-to-markers="">
       <template id="repeated" is="dom-repeat" items="{{points}}" as="point">
-        <google-map-marker class="non-current" latitude="{{point.latitude}}" longitude="{{point.longitude}}" map="{{map}}" icon="{{iconUrl(point)}}" click-events="">
+        <google-map-marker class="non-current" latitude="{{point.latitude}}" longitude="{{point.longitude}}" map="{{map}}" icon="{{iconUrl(point)}}" z-index="{{zIndex(point)}}" click-events="">
         </google-map-marker>
       </template>
 
@@ -20395,6 +20395,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return '/images/wordpress.png';
       } else if (point.icon === 'position') {
         return '/images/position.png';
+      }
+    },
+
+    zIndex: function(point) {
+      if (point.icon === 'wordpress') {
+        return 3;
+      } else if (point.icon !== 'position') {
+        return 1;
       }
     },
 

@@ -45,6 +45,7 @@ own component. If a point isn't worth having a dialog, it won't get one.
           longitude="{{point.longitude}}"
           map="{{map}}"
           icon="{{iconUrl(point)}}"
+          z-index="{{zIndex(point)}}"
           click-events>
         </google-map-marker>
       </template>
@@ -122,6 +123,14 @@ own component. If a point isn't worth having a dialog, it won't get one.
         return '/images/wordpress.png';
       } else if (point.icon === 'position') {
         return '/images/position.png';
+      }
+    },
+
+    zIndex: function(point) {
+      if (point.icon === 'wordpress') {
+        return 3;
+      } else if (point.icon !== 'position') {
+        return 1;
       }
     },
 
