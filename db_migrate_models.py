@@ -6,7 +6,7 @@ import os
 
 from migrate.versioning import api
 from app.flask_app import db
-from app import models  # Just making sure they're loaded. # flake8: noqa
+from app.models import db_models  # Just making sure they're loaded. # flake8: noqa
 from config import SQLALCHEMY_DATABASE_URI
 from config import SQLALCHEMY_MIGRATE_REPO
 
