@@ -9,7 +9,7 @@ import wordpress_xmlrpc  # https://python-wordpress-xmlrpc.readthedocs.org
 from wordpress_xmlrpc.methods import posts as wp_posts
 
 import config
-from app import models
+from app.models import post as model
 
 
 def _Client():
@@ -46,7 +46,7 @@ def _ToPostModel(post):
         content=post.content, link=post.link, timestamp=post_ts)
     if all(loc, lat, lng):
         kwargs.update(dict(location=loc, latitude=lat, lng=lng))
-    return models.Post(**kwargs)
+    return model.Post(**kwargs)
 
 
 def GetPosts(count=100):
