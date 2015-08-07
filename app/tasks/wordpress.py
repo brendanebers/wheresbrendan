@@ -11,6 +11,7 @@ from wordpress_xmlrpc.methods import posts as wp_posts
 import config
 from app import now
 from app.models import post as post_model
+from app.models import position as position_model
 
 
 def _Client():
@@ -79,3 +80,13 @@ def UpdatePost(post_id):
     post = GetPost(post_id)
     post = _ToPostModel(post)
     post_model.SavePosts([post])
+
+
+def AddPosition(post):
+    """Add latitude and longitude to the given post."""
+    # This is a cheat, and expects the previous location to be "good enough"
+    position = position_model.GetLastPositions(1, before=post.epoch).first()
+    if position:
+        post.latitude = position.latitude
+        post.longitude = position.longitude
+        post_model.UpdatePosts([post])

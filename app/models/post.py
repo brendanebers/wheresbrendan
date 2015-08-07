@@ -46,3 +46,8 @@ def SavePosts(posts):
             old.latitude = post.latitude
             old.longitude = post.longitude
     db.session.commit()
+
+
+def UpdatePosts(posts):
+    """Commit changes to updated posts."""
+    db.session.commit()
