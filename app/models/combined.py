@@ -1,5 +1,7 @@
 """"Module for combining model data to present to the view."""
 
+import collections
+
 from app.models import position as position_model
 from app.models import post as post_model
 from app.models import utils
@@ -22,6 +24,40 @@ def TagShortStops(positions):
         previous = position
 
 
+def _GetPosts(start, end):
+    """Get posts for combined data."""
+    posts = post_model.PostRange(start=start, end=end)
+
+    # TODO: Update skip fields
+    posts = utils.RowsAsDicts(posts, skip=['content'])
+
+    posts = _CombinePosts(posts)
+    _AddPostTitles(posts)
+
+
+def _CombinePosts(posts):
+    """Combine posts together."""
+    points = collections.defaultdict(list)
+    for post in posts:
+        coord = (post.pop('latitude'), post.pop('longitude'))
+        points[coord].append(post)
+
+    results = []
+    for coord, posts in points.iteritems():
+        results.append(dict(latitude=coord[0], longitude=coord[1], posts=posts,
+                            epoch=posts[0]['epoch'], icon='wordpress'))
+    return results
+
+
+def _AddPostTitles(posts):
+    """Adds a title attribute to posts."""
+    for post in posts:
+        if len(post['posts']) > 1:
+            post['title'] = '%d blog entries' % len(post['posts'])
+        else:
+            post['title'] = post['posts']['title']
+
+
 def Range(start=None, end=None):
     """Return combined position and post dictionaries for given range."""
     positions = position_model.PositionRange(start=start, end=end)
@@ -30,12 +66,7 @@ def Range(start=None, end=None):
     TagShortStops(positions)
     # TODO: Update skip fields
 
-    posts = post_model.PostRange(start=start, end=end)
-    # TODO: Update skip fields
-    posts = utils.RowsAsDicts(posts, skip=['content'])
-    for post in posts:
-        post['icon'] = 'wordpress'
-
+    posts = _GetPosts(start, end)
     combined = positions + posts
     combined.sort(key=lambda p: p['epoch'])
     return combined
