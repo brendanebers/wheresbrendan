@@ -7,6 +7,7 @@ import json
 
 from app.flask_app import flask_app as app
 from app import now
+from app.models import combined as combined_model
 from app.models import position as position_model
 from app.models import utils
 from app.tasks.celery_app import celery_app
@@ -48,6 +49,15 @@ def GetPositions():
     positions = position_model.PositionRange(start=start, end=end)
     return json.dumps(
         {'points': utils.RowsAsDicts(positions, skip=['date_recorded'])})
+
+
+@app.route('/api/history/')
+def GetHistory():
+    """Return positions and posts within specified time range."""
+    start = _MakeEpoch(request.args.get('start'), 0)
+    end = _MakeEpoch(request.args.get('end'), 999999999999)
+    history = combined_model.PositionRange(start=start, end=end)
+    return json.dumps({'points': history})
 
 
 @app.route('/api/current/')

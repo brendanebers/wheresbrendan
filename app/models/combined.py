@@ -12,7 +12,8 @@ def Range(start=None, end=None):
     # TODO: Positions that are just movement should be a little icon.
 
     posts = post_model.PostRange(start=start, end=end)
-    posts = utils.RowsAsDicts(posts)  # TODO: Update skip fields
+    # TODO: Update skip fields
+    posts = utils.RowsAsDicts(posts, skip=['content'])
     for post in posts:
         post['icon'] = 'wordpress'
 
