@@ -25,17 +25,34 @@ def _ToEpoch(dt):
         minute=tt.tm_min, second=tt.tm_sec)
 
 
+def _ExtractLocation(struct):
+    location = ''
+    latitude, longitude = None, None
+    for field in struct.get('custom_fields', []):
+        if field.get('key') == 'geo_address':
+            location = field.get('value')
+        if field.get('key') == 'geo_latitude':
+            latitude = field.get('value')
+        if field.get('key') == 'geo_longitude':
+            longitude = field.get('value')
+    return location, latitude, longitude
+
+
 def _ToPostModel(post):
     post_ts = _ToEpoch(post.struct['post_date_gmt'])
-    return models.Post(
+    loc, lat, lng = _ExtractLocation(post.struct)
+    kwargs = dict(
         post_id=post.id, title=post.title, status=post.status,
         content=post.content, link=post.link, timestamp=post_ts)
+    if all(loc, lat, lng):
+        kwargs.update(dict(location=loc, latitude=lat, lng=lng))
+    return models.Post(**kwargs)
 
 
-def GetPosts():
+def GetPosts(count=100):
     """Return public wordpress posts."""
     client = _Client()
-    post_query = wp_posts.GetPosts({'post_status': 'publish'})
+    post_query = wp_posts.GetPosts({'post_status': 'publish', 'number': count})
     posts = client.call(post_query)
     return posts
 
