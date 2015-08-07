@@ -46,6 +46,7 @@ own component. If a point isn't worth having a dialog, it won't get one.
           map="{{map}}"
           icon="{{iconUrl(point)}}"
           z-index="{{zIndex(point)}}"
+          title="{{markerTitle(point)}}"
           click-events>
         </google-map-marker>
       </template>
@@ -110,14 +111,6 @@ own component. If a point isn't worth having a dialog, it won't get one.
       '_bothChanged(startDate, endDate)',
     ],
 
-    noIcon: function(point) {
-      return !point.icon;
-    },
-
-    hasIcon: function(point) {
-      return !!point.icon;
-    },
-
     iconUrl: function(point) {
       if (point.icon === 'wordpress') {
         return '/images/wordpress.png';
@@ -132,6 +125,10 @@ own component. If a point isn't worth having a dialog, it won't get one.
       } else if (point.icon !== 'position') {
         return 1;
       }
+    },
+
+    markerTitle: function(point) {
+      return point.epoch;
     },
 
     _markerClicked: function(event) {

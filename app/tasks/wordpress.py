@@ -73,6 +73,8 @@ def UpdatePosts():
     """Ensure all posts in the database are up to date."""
     posts = GetPosts()
     posts = [_ToPostModel(post) for post in posts]
+    for post in posts:
+        AddPosition(post)
     post_model.SavePosts(posts)
 
 
@@ -82,6 +84,7 @@ def UpdatePost(post_id):
     """Ensure given post id is up to date in the database."""
     post = GetPost(post_id)
     post = _ToPostModel(post)
+    AddPosition(post)
     post_model.SavePosts([post])
 
 

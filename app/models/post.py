@@ -50,7 +50,7 @@ def SavePosts(posts):
             old.status = post.status
             old.title = post.title
             old.content = post.content
-            old.timestamp = post.timestamp
+            old.epoch = post.epoch
             old.link = post.link
             old.location = post.location
             old.latitude = post.latitude

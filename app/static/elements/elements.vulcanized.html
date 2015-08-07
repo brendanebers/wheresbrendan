@@ -20326,7 +20326,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <google-map id="map" map="{{map}}" fit-to-markers="">
       <template id="repeated" is="dom-repeat" items="{{points}}" as="point">
-        <google-map-marker class="non-current" latitude="{{point.latitude}}" longitude="{{point.longitude}}" map="{{map}}" icon="{{iconUrl(point)}}" z-index="{{zIndex(point)}}" click-events="">
+        <google-map-marker class="non-current" latitude="{{point.latitude}}" longitude="{{point.longitude}}" map="{{map}}" icon="{{iconUrl(point)}}" z-index="{{zIndex(point)}}" title="{{markerTitle(point)}}" click-events="">
         </google-map-marker>
       </template>
 
@@ -20382,14 +20382,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       '_bothChanged(startDate, endDate)',
     ],
 
-    noIcon: function(point) {
-      return !point.icon;
-    },
-
-    hasIcon: function(point) {
-      return !!point.icon;
-    },
-
     iconUrl: function(point) {
       if (point.icon === 'wordpress') {
         return '/images/wordpress.png';
@@ -20404,6 +20396,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       } else if (point.icon !== 'position') {
         return 1;
       }
+    },
+
+    markerTitle: function(point) {
+      return point.epoch;
     },
 
     _markerClicked: function(event) {
