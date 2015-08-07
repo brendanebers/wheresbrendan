@@ -6,8 +6,12 @@ from dateutil import relativedelta
 
 def Now():
     """The current time."""
-    return (datetime.datetime.utcnow() -
-            datetime.datetime(1970, 1, 1)).total_seconds()
+    return DtToEpoch(datetime.datetime.utcnow())
+
+
+def DtToEpoch(dt):
+    """Convert a datetime to a en epoch."""
+    return (dt - datetime.datetime(1970, 1, 1)).total_seconds()
 
 
 def HumanizeSeconds(delta_seconds):
