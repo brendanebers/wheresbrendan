@@ -61,7 +61,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   // Close drawer after menu item is selected if drawerPanel is narrow
   app.onDataRouteClick = function() {
     app.hideDrawer();
-    app.showingHistory = (app.route === 'history');
+    app._selectedRoute();
+  };
+
+  app.changePage = function(url) {
+    app.hideDrawer();
+    page(url, null, null, false);
+    app._selectedRoute();
   };
 
   app.onHistoryRouteClick = function() {
@@ -72,9 +78,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   };
 
-  app.selectedRoute = function() {
-    // Can inspect app.route to see if it should be going elsewhere.
-    return 'map';
+  app.selectedRoute = 'map';
+  app._selectedRoute = function() {
+    app.showingPost = false;
+    app.showingMap = false;
+    app.showingCurrent = false;
+    app.showingHistory = false;
+    app.showingBlog = false;
+
+    if (app.route === 'now' || app.route === 'history') {
+      app.selectedRoute = 'map';
+      app.showingMap = true;
+      if (app.route === 'current') {
+        app.showingCurrent = true;
+      } else if (app.route === 'history') {
+        app.showingHistory = true;
+      }
+    } else {
+      app.selectedRoute = app.route;
+      if (app.route === 'post') {
+        app.showingPost = true;
+      } else if (app.route === 'blog') {
+        app.showingBlog = true;
+      }
+    }
   };
 
   app.currentLocation = 'Somewhere in the world';
@@ -117,15 +144,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   };
   app.makeHistoryUrl();
 
+  addEventListener('blog-post-selected', function(event) {
+    app.postId = event.detail.postId;
+    app.changePage('/blog/' + app.postId);
+  });
+
   addEventListener('date-range-updated', function() {
-    // console.log('Date range was updated');
-    app.hideDrawer();
     app.makeHistoryUrl();
-    page.replace(app.historyUrl, null, null, false);
+    app.changePage(app.historyUrl);
   });
 
   app.showRangeSelector = function() {
     app.$.rangeSelector.open();
+  };
+
+  app.returnToHistory = function() {
+    app.changePage(app.historyUrl);
   };
 
 })(document);

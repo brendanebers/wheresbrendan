@@ -1,0 +1,65 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="blog-post">
+  <template>
+
+    <iron-ajax
+      id="getPost"
+      url="/api/post/"
+      handle-as="json"
+      last-response="{{fullPost}}"
+      debounce-duration="150"></iron-ajax>
+    <!-- For development: url="/post.json" -->
+    <!-- For production: url="/api/post/" -->
+
+    <paper-material class="blog-post" elevation="1">
+      <div class="paper-font-title">{{fullPost.title}}</div>
+      <div class="paper-font-subhead">{{formattedDate}}</div>
+      <div id="dialogContent" class="paper-font-body1"></div>
+    </paper-material>
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'blog-post',
+    page: Object,
+    properties: {
+      postId: {
+        type: Number,
+        observer: '_idChanged',
+        notify: true
+      },
+      fullPost: {
+        type: Object,
+        observer: '_postChanged'
+      },
+      formattedDate: {
+        type: String,
+        computed: '_formattedDate(fullPost)'
+      },
+    },
+
+    _idChanged: function() {
+      if (this.postId) {
+        this.$.getPost.params = {id: this.postId};
+        this.$.getPost.generateRequest();
+      }
+    },
+
+    _postChanged: function() {
+      this.$.dialogContent.innerHTML = this.fullPost.content;
+      var arr = this.fullPost.link.split('/');
+      var title = arr[arr.length - 2];
+      page.replace('/blog/' + this.fullPost.id + '/' + title);
+    },
+
+    _formattedDate: function(post) {
+      if (!post) {
+        return 'Unknown time';
+      }
+      var d = new Date(0);
+      d.setUTCSeconds(post.epoch);
+      return d.toLocaleDateString();
+    },
+  });
+</script>

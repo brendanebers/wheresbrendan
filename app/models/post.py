@@ -1,6 +1,7 @@
 """Post model and related functions."""
 
 from app.flask_app import db
+from app.models import utils
 
 
 class Post(db.Model):
@@ -23,14 +24,36 @@ class Post(db.Model):
     longitude = db.Column(db.Float)
 
 
-def PostRange(start=None, end=None):
+def PostRange(start=None, end=None, private=False):
     """Return a query object with optional start and end filters specified."""
     query = Post.query.filter()
+    if not private:
+        query = Post.query.filter(Post.status == 'publish')
     if start is not None:
         query = query.filter(Post.epoch >= start)
     if end is not None:
         query = query.filter(Post.epoch <= end)
     return query
+
+
+def GetPost(our_id, private=False):
+    """Return a Post query by our id."""
+    query = Post.query.filter(Post.id == our_id)
+    if not private:
+        query = query.filter(Post.status == 'publish')
+    return query
+
+
+def GetPostDict(our_id, private=False):
+    """Return a Post dictionary by our id."""
+    query = GetPost(our_id, private=private)
+    post = query.first()
+    if not post:
+        return None
+    post_dict = utils.AsDict(post)
+    content = post_dict['content']
+    post_dict['content'] = '<p>' + content.replace('\n\n', '</p><p>') + '</p>'
+    return post_dict
 
 
 def SavePosts(posts):
@@ -55,6 +78,7 @@ def SavePosts(posts):
             old.location = post.location
             old.latitude = post.latitude
             old.longitude = post.longitude
+            old.private = post.private
     db.session.commit()
 
 

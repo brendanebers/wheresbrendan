@@ -22,11 +22,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     page('/now', function () {
       app.route = 'now';
+      app._selectedRoute();
     });
 
     page('/history', function () {
       app.route = 'history';
       app.showRangeSelector();
+      app._selectedRoute();
     });
 
     page('/history/:startDate/to/:endDate', function(ctx) {
@@ -34,6 +36,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       app.historyUrl = ctx.canonicalPath;
       app.startDate = ctx.params.startDate;
       app.endDate = ctx.params.endDate;
+      app._selectedRoute();
+    });
+
+    page('/blog', function() {
+      app.route = 'blog';
+      app._selectedRoute();
+    });
+
+    page('/blog/:postId', function(ctx) {
+      app.route = 'post';
+      app.postId = ctx.params.postId;
+      app._selectedRoute();
+    });
+
+    page('/blog/:postId/:title', function(ctx) {
+      app.route = 'post';
+      app.postId = ctx.params.postId;
+      app._selectedRoute();
     });
 
     /* Work in progress
