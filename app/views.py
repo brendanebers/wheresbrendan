@@ -4,10 +4,14 @@ import datetime
 from dateutil import parser
 from flask import request
 import json
+import os
 
 from app.flask_app import flask_app as app
 from app import now
-from app import models
+from app.models import combined as combined_model
+from app.models import position as position_model
+from app.models import utils
+from app.tasks.celery_app import celery_app
 
 # Delete once we're back to asyncronous
 from app.tasks import spot
@@ -20,6 +24,11 @@ from app.tasks import spot
 def Index(*args, **kwargs):
     """Return the index page."""
     return app.send_static_file('index.html')
+
+
+@app.route('/images/<filename>')
+def Images(filename):
+    return app.send_static_file(os.path.join('images', filename))
 
 
 def _MakeEpoch(val, default):
@@ -43,16 +52,25 @@ def GetPositions():
     """Return positions within specified time range."""
     start = _MakeEpoch(request.args.get('start'), 0)
     end = _MakeEpoch(request.args.get('end'), 999999999999)
-    positions = models.PositionRange(start=start, end=end)
+    positions = position_model.PositionRange(start=start, end=end)
     return json.dumps(
-        {'points': models.RowsAsDicts(positions, skip=['date_recorded'])})
+        {'points': utils.RowsAsDicts(positions, skip=['date_recorded'])})
+
+
+@app.route('/api/history/')
+def GetHistory():
+    """Return positions and posts within specified time range."""
+    start = _MakeEpoch(request.args.get('start'), 0)
+    end = _MakeEpoch(request.args.get('end'), 999999999999)
+    history = combined_model.Range(start=start, end=end)
+    return json.dumps({'points': history})
 
 
 @app.route('/api/current/')
 def Current():
     """Return the current location information."""
-    position_rows = models.GetLastPositions(1)
-    position = models.RowsAsDicts(position_rows)[0]
+    position_rows = position_model.GetLastPositions(1)
+    position = utils.RowsAsDicts(position_rows)[0]
     position['elapsed'] = int(now.Now() - position['epoch'])
     position['elapsed_humanized'] = now.HumanizeSeconds(position['elapsed'])
     return json.dumps(position)
@@ -64,3 +82,11 @@ def TemporarySpotFetch():
     print 'View call to store new spot data'
     spot.StoreNewData()
     return 'success!'
+
+
+@app.route('/api/wordpress/')
+def NewWordpress():
+    """Updates local records of wordpress articles."""
+    post_id = str(request.values.get('id'))
+    celery_app.send_task('app.tasks.wordpress.UpdatePost', [post_id])
+    return 'added to the processing queue'

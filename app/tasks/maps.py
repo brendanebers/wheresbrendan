@@ -5,8 +5,7 @@ import json
 # import unidecode
 
 import config
-from app import models
-from app.models import db
+from app.models import position as model
 from app.tasks import basic_geo
 from app.tasks.celery_app import celery_app
 
@@ -140,7 +139,8 @@ def StoreMapsInformation(row_json):
     country = loc.country and loc.country.long_name or None
     # country_ascii = unidecode.unidecode(country)  # noqa
 
-    rows = [r for r in models.GetPositionsByIds([row['id']])]
+    # TODO: Can this be GetPostion.first() instead of list comprehension?
+    rows = [r for r in model.GetPositionsByIds([row['id']])]
     if not rows:
         print 'An error has occurred, row %s was not found' % row['id']
         return
@@ -148,7 +148,7 @@ def StoreMapsInformation(row_json):
     row.city = city
     row.state = state
     row.country = country
-    db.session.commit()
+    model.UpdatePositions([row])
 
     # I would like to store state or province or whatever.
     # I did some test searched for "Santa Fe near Guadalajara" and they would

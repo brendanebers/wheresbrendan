@@ -5,9 +5,9 @@ from celery import decorators
 import json
 import urllib2
 
-from app import models
-from app.flask_app import db
-from app.tasks.celery_app import celery_app  # noqa  # need for Async tasks
+from app.models import position as model
+from app.models import utils
+from app.tasks.celery_app import celery_app
 
 
 _BRENDAN_FEED = '0Ya905pdnjgy0NflhOoL0GRDzLKUJn1nf'
@@ -26,7 +26,7 @@ def GetFeedPositions(feed, start=0, limit=1000):
     for point in points:
         # TODO: Store battery information.
         # TODO: Store message type.
-        positions.append(models.Position(
+        positions.append(model.Position(
             epoch=point['unixTime'], latitude=point['latitude'],
             longitude=point['longitude']))
     return positions
@@ -36,18 +36,16 @@ def StoreSingleFeedData(feed):
     """Store new Spot data for given feed."""
     print 'Storing data for feed %s' % feed
     positions = GetFeedPositions(feed)
-    positions = [p for p in positions if not models.PositionAt(p.epoch).count()]
+    positions = [p for p in positions if not model.PositionAt(p.epoch).count()]
     if positions:
         print '  fetched %d new points for feed %s' % (len(positions), feed)
-        for position in positions:
-            db.session.add(position)
-        db.session.commit()
+        model.SavePositions(positions)
         PostFetch(positions)
 
 
 def PostFetch(positions):
     """Launch tasks that should be executed after fetching new data."""
-    rows_dict = models.RowsAsDicts(positions)
+    rows_dict = utils.RowsAsDicts(positions)
 
     # Tasks that operate on all rows.
     rows_json = json.dumps(rows_dict)
@@ -69,7 +67,7 @@ def StoreNewData(feed=None, feeds=None):
     if feed:
         feeds = [feed]
     if not feeds:
-        feeds = models.GetFeeds()
+        feeds = [_BRENDAN_FEED]
 
     for feed in feeds:
         StoreSingleFeedData(feed)

@@ -47,15 +47,6 @@ class Position(db.Model):
     # that would be super helpful for alerting me that I need to charge.
 
 
-_BRENDAN_FEED = '0Ya905pdnjgy0NflhOoL0GRDzLKUJn1nf'
-
-
-def GetFeeds():
-    """Return a list of tracked Spot feeds."""
-    # Yup, we only care about Brendan.
-    return [_BRENDAN_FEED]
-
-
 def PositionRange(start=None, end=None):
     """Return a query object with optional start and end filters specified."""
     query = Position.query.filter()
@@ -85,27 +76,13 @@ def GetPositionsByIds(ids):
     return Position.query.filter(Position.id.in_(ids))
 
 
-def _IsField(name, only, skip):
-    if only:
-        return name in only
-    invalid_fields = ['query', 'metadata', 'query_class'] + skip
-    return name[0].islower() and name not in invalid_fields
+def SavePositions(positions):
+    """Save new positions to database."""
+    for position in positions:
+        db.session.add(position)
+    db.session.commit()
 
 
-def AsDict(obj, only=None, skip=None):
-    """Return a dict of a row of data using attributes from the model class.
-
-    Args:
-        obj: The object to return as a dictionary.
-        only: Optional list of fields that should be used in the dictionary.
-        skip: Optional list of fields that should be skipped.
-    """
-    skip = list(skip) if skip else []
-    return dict([
-        (name, getattr(obj, name))
-        for name in dir(obj.__class__) if _IsField(name, only, skip)])
-
-
-def RowsAsDicts(rows, only=None, skip=None):
-    """Return a list of dicts of data; see AsDict above."""
-    return [AsDict(row, only=only, skip=skip) for row in rows]
+def UpdatePositions(positions):
+    """Commit changes to updated positions."""
+    db.session.commit()

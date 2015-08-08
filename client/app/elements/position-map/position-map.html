@@ -30,7 +30,7 @@ own component. If a point isn't worth having a dialog, it won't get one.
     <!-- This should be off by default. -->
     <iron-ajax
       id="previousAjax"
-      url="/api/get_positions/"
+      url="/api/history/"
       handle-as="json"
       on-response="handlePrevious"
       debounce-duration="200"></iron-ajax>
@@ -44,18 +44,23 @@ own component. If a point isn't worth having a dialog, it won't get one.
           latitude="{{point.latitude}}"
           longitude="{{point.longitude}}"
           map="{{map}}"
+          icon="{{iconUrl(point)}}"
+          z-index="{{zIndex(point)}}"
+          title="{{markerTitle(point)}}"
           click-events>
         </google-map-marker>
       </template>
 
-      <google-map-marker
-        latitude="{{current.latitude}}"
-        longitude="{{current.longitude}}"
-        map="{{map}}"
-        click-events
-        hidden$="{{!displayCurrent}}"
-        id="current">
-      </google-map-marker>
+      <template is="dom-if" if="{{current}}">
+        <google-map-marker
+          latitude="{{current.latitude}}"
+          longitude="{{current.longitude}}"
+          map="{{map}}"
+          click-events
+          hidden$="{{!displayCurrent}}"
+          id="current">
+        </google-map-marker>
+      </template>
     </google-map>
 
     <position-map-dialog id="pointDialog" point="{{selected}}"></position-map-dialog>
@@ -105,6 +110,31 @@ own component. If a point isn't worth having a dialog, it won't get one.
     observers: [
       '_bothChanged(startDate, endDate)',
     ],
+
+    iconUrl: function(point) {
+      if (point.icon === 'wordpress') {
+        return '/images/wordpress.png';
+      } else if (point.icon === 'position') {
+        return '/images/position.png';
+      }
+    },
+
+    zIndex: function(point) {
+      if (point.icon === 'wordpress') {
+        return 3;
+      } if (point.icon === 'position') {
+        return 0;
+      } else {
+        return 1;
+      }
+    },
+
+    markerTitle: function(point) {
+      if (point.title) {
+        return point.title + ' ' + point.epoch;
+      }
+      return point.epoch;
+    },
 
     _markerClicked: function(event) {
       var point = this._getPoint(event.detail.latLng.G, event.detail.latLng.K);

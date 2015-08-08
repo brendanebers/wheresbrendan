@@ -4,8 +4,7 @@ from geopy import distance
 import json
 import math
 
-from app import models
-from app.flask_app import db
+from app.models import position as model
 from app.tasks.celery_app import celery_app
 
 
@@ -83,8 +82,8 @@ def StoreDistanceTraversed(rows_json):
     if not rows:
         return
 
-    previous = models.GetLastPositions(1, rows[-1]['epoch'])
-    rows.extend(models.RowsAsDicts(previous))
+    previous = model.GetLastPositions(1, rows[-1]['epoch'])
+    rows.extend(model.RowsAsDicts(previous))
 
     if len(rows) < 2:
         return  # Can't compare distances between 1 object.
@@ -94,7 +93,7 @@ def StoreDistanceTraversed(rows_json):
         deltas[row['id']] = _Deltas(row, rows[idx+1])
 
     # Update the rows in the database.
-    row_objs = models.GetPositionsByIds(deltas.keys())
+    row_objs = model.GetPositionsByIds(deltas.keys())
     for row in row_objs:
         deltas[row.id].UpdateRow(row)
-    db.session.commit()
+    model.UpdatePositions(row_objs)
