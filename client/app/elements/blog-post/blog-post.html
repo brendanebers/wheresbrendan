@@ -54,6 +54,9 @@
     },
 
     _formattedDate: function(post) {
+      if (!post) {
+        return 'Unknown time';
+      }
       var d = new Date(0);
       d.setUTCSeconds(post.epoch);
       return d.toLocaleDateString();

@@ -144,7 +144,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   };
   app.makeHistoryUrl();
 
-  addEventListener('blog-post-selected', function() {
+  addEventListener('blog-post-selected', function(event) {
+    app.postId = event.detail.postId;
     app.changePage('/blog/' + app.postId);
   });
 

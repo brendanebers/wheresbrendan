@@ -14359,9 +14359,6 @@ Any number of components can use `<google-maps-api>` elements, and the library w
 
 </script>
 
-
-
-
 <script>!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.page=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (process){
   /* globals require, module */
@@ -20290,6 +20287,96 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   });
 
 </script>
+<dom-module id="position-map-dialog" assetpath="position-map/">
+  <style>
+    paper-dialog#positionDialog {
+        width: 500px;
+        background-color: #fff;
+    }
+  </style>
+  <template>
+    <paper-dialog id="positionDialog" backdrop="">
+      <h2>{{title}}</h2>
+      <paper-menu class="list">
+        <template is="dom-repeat" items="{{point.posts}}" as="post">
+          <paper-item id="{{post.id}}" data="{{post.id}}" on-click="onPostClick">
+            <paper-item-body two-line="">
+              <div>{{post.title}}</div>
+              <div secondary="">{{formattedEpoch(post.epoch)}}</div>
+            </paper-item-body>
+          </paper-item>
+        </template>
+      </paper-menu>
+      <div class="buttons">
+        <paper-button dialog-dismiss="">Neat</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'position-map-dialog',
+    properties: {
+      point: {
+        type: Object,
+        observer: '_pointChanged',
+        notify: true
+      },
+      title: {
+        type: String,
+        computed: '_dialogTitle(point)'
+      },
+      postId: {
+        type: String,
+      }
+    },
+    onPostClick: function(event) {
+      this.fire('blog-post-selected', {postId: event.currentTarget.id});
+    },
+    _dialogTitle: function(point) {
+      var cnt = point.posts.length;
+      if (cnt == 1) {
+        return 'One Post Written Here';
+      }
+      return cnt + ' Posts Writen Here';
+    },
+    _pointChanged: function() {
+      if (this.point) {
+        this.$.positionDialog.open();
+      } else {
+        this.$.positionDialog.close();
+      }
+    },
+    openDialog: function() {
+      this.$.positionDialog.open();
+      this.$.positionDialog.close();
+      this._delayOpen();
+    },
+    _delayOpen: function() {
+      // We put in a delay so that the contents will render, otherwise
+      // the dialog is displayed at a strange size and location.
+      var positionDialog = this.$.positionDialog;
+      setTimeout(function() {
+        positionDialog.open();
+      }, 200);
+    },
+    closeDialog: function() {
+      this.$.positionDialog.close();
+    },
+    formattedEpoch: function(epoch) {
+      var d = new Date(0);
+      d.setUTCSeconds(epoch);
+      return d.toLocaleDateString();
+    },
+    _formattedDate: function() {
+      var epoch = this._getAttr('epoch');
+      if (epoch) {
+        return this.formattedEpoch(epoch);
+      }
+      return 'Unknown time';
+    },
+  });
+</script>
 <dom-module id="position-map" assetpath="position-map/">
   <style>
     google-map {
@@ -20316,6 +20403,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     </google-map>
 
+    <position-map-dialog point="{{selected}}" id="positionDialog"></position-map-dialog>
+
   </template>
 
 </dom-module>
@@ -20331,13 +20420,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       map: Object,
       startDate: String,
       endDate: String,
-      postId: {
-        type: Number,
-        notify: true
-      },
-      post: {
-        type: Object
-      },
       points: {
         type: Array,
         notify: true
@@ -20353,9 +20435,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       route: {
         type: String,
         observer: '_routeChanged'
-      },
-      showCurrent: {
-        type: Boolean
       },
     },
 
@@ -20394,15 +20473,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     _markerClicked: function(event) {
-      console.log('marker clicked');
       var point = this._getPoint(event.detail.latLng.G, event.detail.latLng.K);
       if (point) {
-        console.log('point found');
         this.selected = point;
-        this.post = point.posts[0].id;
-        console.log(this.post);
-        this.postId = point.posts[0].id;
-        this.fire('blog-post-selected');
+        this.$.positionDialog.openDialog();
         // this.$.pointDialog.openDialog();
       }
     },
@@ -20487,276 +20561,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.points = this._points;
       }
     },
-  });
-</script>
-<dom-module id="paper-dialog-scrollable" assetpath="../bower_components/paper-dialog-scrollable/">
-
-  <style>
-
-    :host {
-      display: block;
-      position: relative;
-    }
-
-    :host(.is-scrolled:not(:first-child))::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: var(--divider-color);
-    }
-
-    :host(.can-scroll:not(.scrolled-to-bottom):not(:last-child))::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: var(--divider-color);
-    }
-
-    .scrollable {
-      padding: 0 24px;
-
-      @apply(--layout-scroll);
-
-      @apply(--paper-dialog-scrollable);
-    }
-  </style>
-
-  <template>
-    <div id="scrollable" class="scrollable">
-      <content></content>
-    </div>
-  </template>
-
-</dom-module>
-
-<script>
-
-(function() {
-
-  Polymer({
-
-    is: 'paper-dialog-scrollable',
-
-    properties: {
-
-      /**
-       * The dialog element that implements `Polymer.PaperDialogBehavior` containing this element.
-       * @type {?Node}
-       */
-      dialogElement: {
-        type: Object,
-        value: function() {
-          return this.parentNode;
-        }
-      }
-
-    },
-
-    listeners: {
-      'scrollable.scroll': '_onScroll',
-      'iron-resize': '_onIronResize'
-    },
-
-    /**
-     * Returns the scrolling element.
-     */
-    get scrollTarget() {
-      return this.$.scrollable;
-    },
-
-    attached: function() {
-      this.classList.add('no-padding');
-      // Set itself to the overlay sizing target
-      this.dialogElement.sizingTarget = this.scrollTarget;
-      // If the host is sized, fit the scrollable area to the container. Otherwise let it be
-      // its natural size.
-      requestAnimationFrame(function() {
-        if (this.offsetHeight > 0) {
-          this.$.scrollable.classList.add('fit');
-        }
-        this._scroll();
-      }.bind(this));
-    },
-
-    _scroll: function() {
-      this.toggleClass('is-scrolled', this.scrollTarget.scrollTop > 0);
-      this.toggleClass('can-scroll', this.scrollTarget.offsetHeight < this.scrollTarget.scrollHeight);
-      this.toggleClass('scrolled-to-bottom',
-        this.scrollTarget.scrollTop + this.scrollTarget.offsetHeight >= this.scrollTarget.scrollHeight);
-    },
-
-    _onScroll: function() {
-      this._scroll();
-    }
-
-  })
-
-})();
-
-</script>
-<dom-module id="position-map-dialog" assetpath="position-map/">
-  <template>
-
-    <iron-ajax id="getPost" url="/post.json" handle-as="json" last-response="{{fullPost}}" debounce-duration="200"></iron-ajax>
-    
-    
-
-    <paper-dialog id="positionDialog" backdrop="">
-      <h2>{{title}}</h2>
-      <paper-dialog-scrollable id="dialogContent"></paper-dialog-scrollable>
-      <div id="buttonsBox" class="buttons">
-        <paper-button hidden$="{{!showBack}}" on-tap="clearFull">Back</paper-button>
-        <paper-button dialog-dismiss="">Done</paper-button>
-      </div>
-    </paper-dialog>
-  </template>
-</dom-module>
-<script>
-  Polymer({
-    is: 'position-map-dialog',
-    properties: {
-      point: {
-        type: Object,
-        observer: '_pointChanged',
-        notify: true
-      },
-      post: {
-        type: Object,
-        observer: '_postChanged'
-      },
-      title: {
-        type: String,
-        computed: '_getTitle(point, post)'
-      },
-      formattedDate: {
-        type: String,
-        computed: '_formattedDate(post, fullPost)'
-      },
-      fullPost: {
-        type: Object,
-        observer: '_fullPostChanged'
-      },
-      isMulti: {
-        type: Boolean,
-        computed: '_isMultiPost(point)'
-      },
-      showBack: {
-        type: Boolean,
-        computed: '_showBack(point, fullPost)'
-      }
-    },
-    onPostClick: function() {
-      // Should change the URL
-    },
-    _pointChanged: function() {
-      if (this.point) {
-        if (this.point.posts.length == 1) {
-          this.post = this.point.posts[0]
-        }
-        this.$.positionDialog.open();
-      } else {
-        this.$.positionDialog.close();
-      }
-    },
-    _reset: function() {
-      this.post = null;
-      this.fullPost = null;
-      this.$.dialogContent.innerHTML = '';
-    },
-    openDialog: function() {
-      this._reset();
-      if (this.point && this.point.posts && this.point.posts.length == 1) {
-        this.post = this.point.posts[0]
-      }
-      this._delayOpen();
-    },
-    _delayOpen: function() {
-      // We put in a delay so that the contents will render, otherwise
-      // the dialog is displayed at a strange size and location.
-      var positionDialog = this.$.positionDialog;
-      var scrollable = this.$.dialogContent;
-      setTimeout(function() {
-        scrollable.attached();
-        positionDialog.open();
-      }, 150);
-    },
-    closeDialog: function() {
-      this.$.positionDialog.close();
-      this._reset();
-    },
-    clearFull: function() {
-      this.$.positionDialog.close();
-      this.post = null;
-      this.fullPost = null;
-      this._delayOpen();
-    },
-    _isMultiPost: function() {
-      return this.point && this.point.posts && this.point.posts.length > 1;
-    },
-    _showBack: function() {
-      // Show back if it's a multi post and the full post is open.
-      return this._isMultiPost() && this.fullPost;
-    },
-    _getAttr: function(attr) {
-      if (this.fullPost) {
-        return this.fullPost[attr];
-      } else if (this.post) {
-        return this.post[attr];
-      }
-      return null;
-    },
-    _getTitle: function() {
-      if (this.post) {
-        return this._getAttr('title');
-      } else if (this.point) {
-        return this.point.title;
-      }
-      return 'Untitled';
-    },
-    formattedEpoch: function(epoch) {
-      var d = new Date(0);
-      d.setUTCSeconds(epoch);
-      return d.toLocaleDateString();
-    },
-    _formattedDate: function() {
-      var epoch = this._getAttr('epoch');
-      if (epoch) {
-        return this.formattedEpoch(epoch)
-      }
-      return 'Unknown time';
-    },
-    _postChanged: function() {
-      // TODO: Store posts between requests.
-      console.log('post changed');
-      if (this.post) {
-        console.log('fetching new post');
-        this.$.getPost.params = {id: this.post.id};
-        this.$.getPost.generateRequest();
-      }
-    },
-    injectHTML: function(content, container) {
-      this.$.positionDialog.close();
-      container.innerHTML = content;
-      /* var elem = document.createElement('div');
-      elem.innerHTML = content;
-      Polymer.dom(container).appendChild(elem); */
-      this._delayOpen();
-    },
-    _fullPostChanged: function() {
-      console.log(this.fullPost);
-      if (this.fullPost) {
-        this.injectHTML(this.fullPost.content, this.$.dialogContent);
-      }
-    },
-    _makeScrollable: function() {
-
-    }
   });
 </script>
 <dom-module id="range-selector" assetpath="range-selector/">
@@ -20863,16 +20667,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     _idChanged: function() {
-      console.log('id changed ' + this.postId);
       if (this.postId) {
-        console.log('fetching new post');
         this.$.getPost.params = {id: this.postId};
         this.$.getPost.generateRequest();
       }
     },
 
     _postChanged: function() {
-      console.log('our post changed');
       this.$.dialogContent.innerHTML = this.fullPost.content;
       var arr = this.fullPost.link.split('/');
       var title = arr[arr.length - 2];
@@ -20880,6 +20681,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     _formattedDate: function(post) {
+      if (!post) {
+        return 'Unknown time';
+      }
       var d = new Date(0);
       d.setUTCSeconds(post.epoch);
       return d.toLocaleDateString();
