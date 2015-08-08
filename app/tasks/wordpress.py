@@ -7,6 +7,7 @@
 import datetime
 import wordpress_xmlrpc  # https://python-wordpress-xmlrpc.readthedocs.org
 from wordpress_xmlrpc.methods import posts as wp_posts
+import xmlrpclib  # For catching exceptions
 
 import config
 from app import now
@@ -64,9 +65,12 @@ def GetPosts(count=100):
 def GetPost(post_id):
     """Return a given post by ID."""
     client = _Client()
-    post_query = wp_posts.GetPosts({'post_id': post_id})
-    posts = client.call(post_query)
-    return posts[0] if posts else None
+    post_query = wp_posts.GetPost(post_id)
+    try:
+        return client.call(post_query)
+    except xmlrpclib.Fault as e:
+        print 'Fault getting post %s - %s' % (post_id, e)
+        return None
 
 
 def UpdatePosts():
@@ -83,6 +87,9 @@ def UpdatePosts():
 def UpdatePost(post_id):
     """Ensure given post id is up to date in the database."""
     post = GetPost(post_id)
+    if not post:
+        return
+
     post = _ToPostModel(post)
     AddPosition(post)
     post_model.SavePosts([post])

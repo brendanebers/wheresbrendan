@@ -33,6 +33,7 @@ def _GetPosts(start, end):
 
     posts = _CombinePosts(posts)
     _AddPostTitles(posts)
+    return posts
 
 
 def _CombinePosts(posts):
@@ -41,9 +42,11 @@ def _CombinePosts(posts):
     for post in posts:
         coord = (post.pop('latitude'), post.pop('longitude'))
         points[coord].append(post)
+    print points
 
     results = []
     for coord, posts in points.iteritems():
+        print 'just combined %d posts' % len(posts)
         results.append(dict(latitude=coord[0], longitude=coord[1], posts=posts,
                             epoch=posts[0]['epoch'], icon='wordpress'))
     return results
@@ -55,7 +58,7 @@ def _AddPostTitles(posts):
         if len(post['posts']) > 1:
             post['title'] = '%d blog entries' % len(post['posts'])
         else:
-            post['title'] = post['posts']['title']
+            post['title'] = post['posts'][0]['title']
 
 
 def Range(start=None, end=None):
