@@ -78,7 +78,6 @@ def SavePosts(posts):
             old.location = post.location
             old.latitude = post.latitude
             old.longitude = post.longitude
-            old.private = post.private
     db.session.commit()
 
 
