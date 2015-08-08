@@ -20393,7 +20393,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     zIndex: function(point) {
       if (point.icon === 'wordpress') {
         return 3;
-      } else if (point.icon !== 'position') {
+      } if (point.icon === 'position') {
+        return 0;
+      } else {
         return 1;
       }
     },

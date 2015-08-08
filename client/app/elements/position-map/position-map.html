@@ -122,7 +122,9 @@ own component. If a point isn't worth having a dialog, it won't get one.
     zIndex: function(point) {
       if (point.icon === 'wordpress') {
         return 3;
-      } else if (point.icon !== 'position') {
+      } if (point.icon === 'position') {
+        return 0;
+      } else {
         return 1;
       }
     },

@@ -61,6 +61,13 @@ def _AddPostTitles(posts):
             post['title'] = post['posts'][0]['title']
 
 
+def _FilterPositions(positions, posts):
+    post_coords = set((p['latitude'], p['longitude']) for p in posts)
+    for p in positions:
+        if (p['latitude'], p['longitude']) not in post_coords:
+            yield p
+
+
 def Range(start=None, end=None):
     """Return combined position and post dictionaries for given range."""
     positions = position_model.PositionRange(start=start, end=end)
@@ -70,6 +77,7 @@ def Range(start=None, end=None):
     # TODO: Update skip fields
 
     posts = _GetPosts(start, end)
+    positions = list(_FilterPositions(positions, posts))
     combined = positions + posts
     combined.sort(key=lambda p: p['epoch'])
     return combined
