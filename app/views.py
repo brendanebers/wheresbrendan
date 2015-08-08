@@ -10,6 +10,7 @@ from app.flask_app import flask_app as app
 from app import now
 from app.models import combined as combined_model
 from app.models import position as position_model
+from app.models import post as post_model
 from app.models import utils
 from app.tasks.celery_app import celery_app
 
@@ -86,7 +87,15 @@ def TemporarySpotFetch():
 
 @app.route('/api/wordpress/')
 def NewWordpress():
-    """Updates local records of wordpress articles."""
+    """Update local records of wordpress articles."""
     post_id = str(request.values.get('id'))
     celery_app.send_task('app.tasks.wordpress.UpdatePost', [post_id])
     return 'added to the processing queue'
+
+
+@app.route('/api/post/')
+def GetPost():
+    """Get a specific post."""
+    our_id = str(request.values.get('id'))
+    post = post_model.GetPostDict(our_id, private=False)
+    return json.dumps(post)

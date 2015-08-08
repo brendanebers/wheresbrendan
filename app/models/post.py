@@ -1,6 +1,7 @@
 """Post model and related functions."""
 
 from app.flask_app import db
+from app.models import utils
 
 
 class Post(db.Model):
@@ -33,6 +34,23 @@ def PostRange(start=None, end=None, private=False):
     if end is not None:
         query = query.filter(Post.epoch <= end)
     return query
+
+
+def GetPost(our_id, private=False):
+    """Return a Post query by our id."""
+    query = Post.query.filter(Post.id == our_id)
+    if not private:
+        query = Post.query.filter(Post.status == 'publish')
+    return query
+
+
+def GetPostDict(our_id, private=False):
+    """Return a Post dictionary by our id."""
+    query = GetPost(our_id, private=private)
+    post = query.first()
+    if not post:
+        return None
+    return utils.AsDict(post)
 
 
 def SavePosts(posts):
