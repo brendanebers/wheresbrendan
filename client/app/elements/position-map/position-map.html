@@ -27,14 +27,13 @@ own component. If a point isn't worth having a dialog, it won't get one.
   </style>
 
   <template>
-    <!-- This should be off by default. -->
     <iron-ajax
       id="previousAjax"
-      url="/api/history/"
+      url="/history.json"
       handle-as="json"
       on-response="handlePrevious"
       debounce-duration="200"></iron-ajax>
-    <!-- For development: url="/demo_positions.json" -->
+    <!-- For development: url="/history.json" -->
     <!-- For production: url="/api/get_positions/" -->
 
     <google-map id="map" map="{{map}}" fit-to-markers>
@@ -140,8 +139,7 @@ own component. If a point isn't worth having a dialog, it won't get one.
       var point = this._getPoint(event.detail.latLng.G, event.detail.latLng.K);
       if (point) {
         this.selected = point;
-        // TODO(#25)
-        // this.$.pointDialog.openDialog();
+        this.$.pointDialog.openDialog();
       }
     },
 

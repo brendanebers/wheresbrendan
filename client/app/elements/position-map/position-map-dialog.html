@@ -7,12 +7,22 @@
   <template>
     <paper-dialog id="positionDialog" entry-animation="fade-in-animation" exit-animation="fade-out-animation" modal>
       <h2>{{title}}</h2>
-      <paper-dialog-scrollable>
-        Lorem ipsum... Brendan's lazy.
-      </paper-dialog-scrollable>
-      <div class="buttons">
-        <paper-button dialog-dismiss>Neat</paper-button>
-      </div>
+      <template is="dom-if" if="{{!post}}">
+        <paper-dialog-scrollable>
+          Multi posts... Brendan's lazy.
+        </paper-dialog-scrollable>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Neat</paper-button>
+        </div>
+      </template>
+      <template is="dom-if" if="{{post}}">
+        <paper-dialog-scrollable>
+          Single post... Brendan's lazy.
+        </paper-dialog-scrollable>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Neat</paper-button>
+        </div>
+      </template>
     </paper-dialog>
   </template>
 </dom-module>
@@ -24,14 +34,35 @@
         type: Object,  // city, state, country, post, photos...
         observer: '_updateStatics',
       },
-      title: String
+      post: Object,
+      title: {
+        type: String,
+        computed: '_getTitle(point, post)'
+      }
     },
     openDialog: function() {
       console.log('opening dialog!');
+      if (this.point && this.point.posts && this.point.posts.length == 1) {
+        this.post = this.point.posts[0]
+      } else {
+        this.post = null;
+      }
       this.$.positionDialog.open();
     },
     closeDialog: function() {
+      this.post = null;
       this.$.positionDialog.close();
+    },
+    isMultiPost: function() {
+      return this.point && this.point.posts && this.point.posts.length > 1;
+    },
+    _getTitle: function() {
+      if (this.post) {
+        return this.post.title;
+      } else if (this.point) {
+        return this.point.title;
+      }
+      return 'Untitled';
     },
     _updateStatics: function() {
       this.title = '';
@@ -42,6 +73,9 @@
           this.title = 'Somewhere in ' + this.point.country;
         }
       }
-    }
+    },
+    displayPost: function(post) {
+
+    },
   });
 </script>
