@@ -40,7 +40,7 @@ def GetPost(our_id, private=False):
     """Return a Post query by our id."""
     query = Post.query.filter(Post.id == our_id)
     if not private:
-        query = Post.query.filter(Post.status == 'publish')
+        query = query.filter(Post.status == 'publish')
     return query
 
 
@@ -50,7 +50,10 @@ def GetPostDict(our_id, private=False):
     post = query.first()
     if not post:
         return None
-    return utils.AsDict(post)
+    post_dict = utils.AsDict(post)
+    content = post_dict['content']
+    post_dict['content'] = '<p>' + content.replace('\n\n', '</p><p>') + '</p>'
+    return post_dict
 
 
 def SavePosts(posts):

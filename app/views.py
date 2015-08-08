@@ -96,6 +96,6 @@ def NewWordpress():
 @app.route('/api/post/')
 def GetPost():
     """Get a specific post."""
-    our_id = str(request.values.get('id'))
+    our_id = int(request.values.get('id'))
     post = post_model.GetPostDict(our_id, private=False)
     return json.dumps(post)
