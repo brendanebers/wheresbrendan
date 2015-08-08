@@ -58,8 +58,11 @@ def GetPosts(count=100):
     """Return public wordpress posts."""
     client = _Client()
     post_query = wp_posts.GetPosts({'post_status': 'publish', 'number': count})
-    posts = client.call(post_query)
-    return posts
+    public = client.call(post_query)
+
+    post_query = wp_posts.GetPosts({'post_status': 'private', 'number': count})
+    private = client.call(post_query)
+    return public + private
 
 
 def GetPost(post_id):

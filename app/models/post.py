@@ -23,9 +23,11 @@ class Post(db.Model):
     longitude = db.Column(db.Float)
 
 
-def PostRange(start=None, end=None):
+def PostRange(start=None, end=None, private=False):
     """Return a query object with optional start and end filters specified."""
     query = Post.query.filter()
+    if not private:
+        query = Post.query.filter(Post.status == 'publish')
     if start is not None:
         query = query.filter(Post.epoch >= start)
     if end is not None:
@@ -55,6 +57,7 @@ def SavePosts(posts):
             old.location = post.location
             old.latitude = post.latitude
             old.longitude = post.longitude
+            old.private = post.private
     db.session.commit()
 
 
