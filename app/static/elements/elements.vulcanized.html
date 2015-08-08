@@ -13710,6 +13710,10 @@ Any number of components can use `<google-maps-api>` elements, and the library w
   }
 </style>
 
+
+
+
+
 <script>
 
   Polymer({
@@ -14354,8 +14358,6 @@ Any number of components can use `<google-maps-api>` elements, and the library w
   });
 
 </script>
-
-
 
 
 
@@ -15295,11 +15297,13 @@ module.exports = Array.isArray || function (arr) {
 
     page('/now', function () {
       app.route = 'now';
+      app._selectedRoute();
     });
 
     page('/history', function () {
       app.route = 'history';
       app.showRangeSelector();
+      app._selectedRoute();
     });
 
     page('/history/:startDate/to/:endDate', function(ctx) {
@@ -15307,6 +15311,24 @@ module.exports = Array.isArray || function (arr) {
       app.historyUrl = ctx.canonicalPath;
       app.startDate = ctx.params.startDate;
       app.endDate = ctx.params.endDate;
+      app._selectedRoute();
+    });
+
+    page('/blog', function() {
+      app.route = 'blog';
+      app._selectedRoute();
+    });
+
+    page('/blog/:postId', function(ctx) {
+      app.route = 'post';
+      app.postId = ctx.params.postId;
+      app._selectedRoute();
+    });
+
+    page('/blog/:postId/:title', function(ctx) {
+      app.route = 'post';
+      app.postId = ctx.params.postId;
+      app._selectedRoute();
     });
 
     /* Work in progress
@@ -20268,48 +20290,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   });
 
 </script>
-<dom-module id="position-map-dialog" assetpath="position-map/">
-  <template>
-    <paper-dialog id="positionDialog" entry-animation="fade-in-animation" exit-animation="fade-out-animation" modal="">
-      <h2>{{title}}</h2>
-      <paper-dialog-scrollable>
-        Lorem ipsum... Brendan's lazy.
-      </paper-dialog-scrollable>
-      <div class="buttons">
-        <paper-button dialog-dismiss="">Neat</paper-button>
-      </div>
-    </paper-dialog>
-  </template>
-</dom-module>
-<script>
-  Polymer({
-    is: 'position-map-dialog',
-    properties: {
-      point: {
-        type: Object,  // city, state, country, post, photos...
-        observer: '_updateStatics',
-      },
-      title: String
-    },
-    openDialog: function() {
-      console.log('opening dialog!');
-      this.$.positionDialog.open();
-    },
-    closeDialog: function() {
-      this.$.positionDialog.close();
-    },
-    _updateStatics: function() {
-      this.title = '';
-      if (this.point) {
-        if (this.point.city) {
-          this.title = this.point.city + ', ' + this.point.country;
-        } else {
-          this.title = 'Somewhere in ' + this.point.country;
-        }
-      }
-    }
-  });
-</script>
 <dom-module id="position-map" assetpath="position-map/">
   <style>
     google-map {
@@ -20319,14 +20299,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 
   <template>
-    
     <iron-ajax id="previousAjax" url="/api/history/" handle-as="json" on-response="handlePrevious" debounce-duration="200"></iron-ajax>
     
     
 
     <google-map id="map" map="{{map}}" fit-to-markers="">
       <template id="repeated" is="dom-repeat" items="{{points}}" as="point">
-        <google-map-marker class="non-current" latitude="{{point.latitude}}" longitude="{{point.longitude}}" map="{{map}}" icon="{{iconUrl(point)}}" z-index="{{zIndex(point)}}" title="{{markerTitle(point)}}" click-events="">
+        <google-map-marker class="non-current" latitude="{{point.latitude}}" longitude="{{point.longitude}}" map="{{map}}" icon="{{iconUrl(point)}}" z-index="{{zIndex(point)}}" title="{{markerTitle(point)}}" click-events$="{{clickEvents(point)}}">
         </google-map-marker>
       </template>
 
@@ -20334,9 +20313,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <google-map-marker latitude="{{current.latitude}}" longitude="{{current.longitude}}" map="{{map}}" click-events="" hidden$="{{!displayCurrent}}" id="current">
         </google-map-marker>
       </template>
-    </google-map>
 
-    <position-map-dialog id="pointDialog" point="{{selected}}"></position-map-dialog>
+    </google-map>
 
   </template>
 
@@ -20353,12 +20331,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       map: Object,
       startDate: String,
       endDate: String,
+      postId: {
+        type: Number,
+        notify: true
+      },
+      post: {
+        type: Object
+      },
       points: {
         type: Array,
         notify: true
       },
       selected: {
-        type: Object
+        type: Object,
+        notify: true
       },
       current: {
         type: Object,
@@ -20368,9 +20354,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: String,
         observer: '_routeChanged'
       },
-      displayCurrent: {
+      showCurrent: {
         type: Boolean
-      }
+      },
     },
 
     listeners: {
@@ -20408,10 +20394,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     _markerClicked: function(event) {
+      console.log('marker clicked');
       var point = this._getPoint(event.detail.latLng.G, event.detail.latLng.K);
       if (point) {
+        console.log('point found');
         this.selected = point;
-        // TODO(#25)
+        this.post = point.posts[0].id;
+        console.log(this.post);
+        this.postId = point.posts[0].id;
+        this.fire('blog-post-selected');
         // this.$.pointDialog.openDialog();
       }
     },
@@ -20431,6 +20422,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     handlePrevious: function() {
       this.points = this._points = this.$.previousAjax.lastResponse.points;
+    },
+
+    clickEvents: function(point) {
+      // As we add more events, we can make this better-er.
+      return point.posts && point.posts.length > 0;
     },
 
     _getPoint: function(lat, lng) {
@@ -20491,6 +20487,276 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.points = this._points;
       }
     },
+  });
+</script>
+<dom-module id="paper-dialog-scrollable" assetpath="../bower_components/paper-dialog-scrollable/">
+
+  <style>
+
+    :host {
+      display: block;
+      position: relative;
+    }
+
+    :host(.is-scrolled:not(:first-child))::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--divider-color);
+    }
+
+    :host(.can-scroll:not(.scrolled-to-bottom):not(:last-child))::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--divider-color);
+    }
+
+    .scrollable {
+      padding: 0 24px;
+
+      @apply(--layout-scroll);
+
+      @apply(--paper-dialog-scrollable);
+    }
+  </style>
+
+  <template>
+    <div id="scrollable" class="scrollable">
+      <content></content>
+    </div>
+  </template>
+
+</dom-module>
+
+<script>
+
+(function() {
+
+  Polymer({
+
+    is: 'paper-dialog-scrollable',
+
+    properties: {
+
+      /**
+       * The dialog element that implements `Polymer.PaperDialogBehavior` containing this element.
+       * @type {?Node}
+       */
+      dialogElement: {
+        type: Object,
+        value: function() {
+          return this.parentNode;
+        }
+      }
+
+    },
+
+    listeners: {
+      'scrollable.scroll': '_onScroll',
+      'iron-resize': '_onIronResize'
+    },
+
+    /**
+     * Returns the scrolling element.
+     */
+    get scrollTarget() {
+      return this.$.scrollable;
+    },
+
+    attached: function() {
+      this.classList.add('no-padding');
+      // Set itself to the overlay sizing target
+      this.dialogElement.sizingTarget = this.scrollTarget;
+      // If the host is sized, fit the scrollable area to the container. Otherwise let it be
+      // its natural size.
+      requestAnimationFrame(function() {
+        if (this.offsetHeight > 0) {
+          this.$.scrollable.classList.add('fit');
+        }
+        this._scroll();
+      }.bind(this));
+    },
+
+    _scroll: function() {
+      this.toggleClass('is-scrolled', this.scrollTarget.scrollTop > 0);
+      this.toggleClass('can-scroll', this.scrollTarget.offsetHeight < this.scrollTarget.scrollHeight);
+      this.toggleClass('scrolled-to-bottom',
+        this.scrollTarget.scrollTop + this.scrollTarget.offsetHeight >= this.scrollTarget.scrollHeight);
+    },
+
+    _onScroll: function() {
+      this._scroll();
+    }
+
+  })
+
+})();
+
+</script>
+<dom-module id="position-map-dialog" assetpath="position-map/">
+  <template>
+
+    <iron-ajax id="getPost" url="/post.json" handle-as="json" last-response="{{fullPost}}" debounce-duration="200"></iron-ajax>
+    
+    
+
+    <paper-dialog id="positionDialog" backdrop="">
+      <h2>{{title}}</h2>
+      <paper-dialog-scrollable id="dialogContent"></paper-dialog-scrollable>
+      <div id="buttonsBox" class="buttons">
+        <paper-button hidden$="{{!showBack}}" on-tap="clearFull">Back</paper-button>
+        <paper-button dialog-dismiss="">Done</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'position-map-dialog',
+    properties: {
+      point: {
+        type: Object,
+        observer: '_pointChanged',
+        notify: true
+      },
+      post: {
+        type: Object,
+        observer: '_postChanged'
+      },
+      title: {
+        type: String,
+        computed: '_getTitle(point, post)'
+      },
+      formattedDate: {
+        type: String,
+        computed: '_formattedDate(post, fullPost)'
+      },
+      fullPost: {
+        type: Object,
+        observer: '_fullPostChanged'
+      },
+      isMulti: {
+        type: Boolean,
+        computed: '_isMultiPost(point)'
+      },
+      showBack: {
+        type: Boolean,
+        computed: '_showBack(point, fullPost)'
+      }
+    },
+    onPostClick: function() {
+      // Should change the URL
+    },
+    _pointChanged: function() {
+      if (this.point) {
+        if (this.point.posts.length == 1) {
+          this.post = this.point.posts[0]
+        }
+        this.$.positionDialog.open();
+      } else {
+        this.$.positionDialog.close();
+      }
+    },
+    _reset: function() {
+      this.post = null;
+      this.fullPost = null;
+      this.$.dialogContent.innerHTML = '';
+    },
+    openDialog: function() {
+      this._reset();
+      if (this.point && this.point.posts && this.point.posts.length == 1) {
+        this.post = this.point.posts[0]
+      }
+      this._delayOpen();
+    },
+    _delayOpen: function() {
+      // We put in a delay so that the contents will render, otherwise
+      // the dialog is displayed at a strange size and location.
+      var positionDialog = this.$.positionDialog;
+      var scrollable = this.$.dialogContent;
+      setTimeout(function() {
+        scrollable.attached();
+        positionDialog.open();
+      }, 150);
+    },
+    closeDialog: function() {
+      this.$.positionDialog.close();
+      this._reset();
+    },
+    clearFull: function() {
+      this.$.positionDialog.close();
+      this.post = null;
+      this.fullPost = null;
+      this._delayOpen();
+    },
+    _isMultiPost: function() {
+      return this.point && this.point.posts && this.point.posts.length > 1;
+    },
+    _showBack: function() {
+      // Show back if it's a multi post and the full post is open.
+      return this._isMultiPost() && this.fullPost;
+    },
+    _getAttr: function(attr) {
+      if (this.fullPost) {
+        return this.fullPost[attr];
+      } else if (this.post) {
+        return this.post[attr];
+      }
+      return null;
+    },
+    _getTitle: function() {
+      if (this.post) {
+        return this._getAttr('title');
+      } else if (this.point) {
+        return this.point.title;
+      }
+      return 'Untitled';
+    },
+    formattedEpoch: function(epoch) {
+      var d = new Date(0);
+      d.setUTCSeconds(epoch);
+      return d.toLocaleDateString();
+    },
+    _formattedDate: function() {
+      var epoch = this._getAttr('epoch');
+      if (epoch) {
+        return this.formattedEpoch(epoch)
+      }
+      return 'Unknown time';
+    },
+    _postChanged: function() {
+      // TODO: Store posts between requests.
+      console.log('post changed');
+      if (this.post) {
+        console.log('fetching new post');
+        this.$.getPost.params = {id: this.post.id};
+        this.$.getPost.generateRequest();
+      }
+    },
+    injectHTML: function(content, container) {
+      this.$.positionDialog.close();
+      container.innerHTML = content;
+      /* var elem = document.createElement('div');
+      elem.innerHTML = content;
+      Polymer.dom(container).appendChild(elem); */
+      this._delayOpen();
+    },
+    _fullPostChanged: function() {
+      console.log(this.fullPost);
+      if (this.fullPost) {
+        this.injectHTML(this.fullPost.content, this.$.dialogContent);
+      }
+    },
+    _makeScrollable: function() {
+
+    }
   });
 </script>
 <dom-module id="range-selector" assetpath="range-selector/">
@@ -20559,6 +20825,64 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.startDate = this.internalStartDate;
       this.endDate = this.internalEndDate;
       this.fire('date-range-updated');
+    },
+  });
+</script>
+<dom-module id="blog-post" assetpath="blog-post/">
+  <template>
+
+    <iron-ajax id="getPost" url="/api/post/" handle-as="json" last-response="{{fullPost}}" debounce-duration="150"></iron-ajax>
+    
+    
+
+    <paper-material class="blog-post" elevation="1">
+      <div class="paper-font-title">{{fullPost.title}}</div>
+      <div class="paper-font-subhead">{{formattedDate}}</div>
+      <div id="dialogContent" class="paper-font-body1"></div>
+    </paper-material>
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'blog-post',
+    page: Object,
+    properties: {
+      postId: {
+        type: Number,
+        observer: '_idChanged',
+        notify: true
+      },
+      fullPost: {
+        type: Object,
+        observer: '_postChanged'
+      },
+      formattedDate: {
+        type: String,
+        computed: '_formattedDate(fullPost)'
+      },
+    },
+
+    _idChanged: function() {
+      console.log('id changed ' + this.postId);
+      if (this.postId) {
+        console.log('fetching new post');
+        this.$.getPost.params = {id: this.postId};
+        this.$.getPost.generateRequest();
+      }
+    },
+
+    _postChanged: function() {
+      console.log('our post changed');
+      this.$.dialogContent.innerHTML = this.fullPost.content;
+      var arr = this.fullPost.link.split('/');
+      var title = arr[arr.length - 2];
+      page.replace('/blog/' + this.fullPost.id + '/' + title);
+    },
+
+    _formattedDate: function(post) {
+      var d = new Date(0);
+      d.setUTCSeconds(post.epoch);
+      return d.toLocaleDateString();
     },
   });
 </script>

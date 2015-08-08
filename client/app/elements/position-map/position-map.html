@@ -1,7 +1,6 @@
 <link rel="import" href="../../bower_components/google-map/google-map.html">
 <link rel="import" href="../../bower_components/google-map/google-map-marker.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="position-map-dialog.html">
 
 <!--
 I wanted to combine the dialog logic with the google-map-marker decalarations
@@ -29,12 +28,12 @@ own component. If a point isn't worth having a dialog, it won't get one.
   <template>
     <iron-ajax
       id="previousAjax"
-      url="/history.json"
+      url="/api/history/"
       handle-as="json"
       on-response="handlePrevious"
       debounce-duration="200"></iron-ajax>
     <!-- For development: url="/history.json" -->
-    <!-- For production: url="/api/get_positions/" -->
+    <!-- For production: url="/api/history/" -->
 
     <google-map id="map" map="{{map}}" fit-to-markers>
       <template id="repeated" is="dom-repeat" items="{{points}}" as="point">
@@ -46,7 +45,7 @@ own component. If a point isn't worth having a dialog, it won't get one.
           icon="{{iconUrl(point)}}"
           z-index="{{zIndex(point)}}"
           title="{{markerTitle(point)}}"
-          click-events>
+          click-events$="{{clickEvents(point)}}">
         </google-map-marker>
       </template>
 
@@ -60,9 +59,8 @@ own component. If a point isn't worth having a dialog, it won't get one.
           id="current">
         </google-map-marker>
       </template>
-    </google-map>
 
-    <position-map-dialog id="pointDialog" point="{{selected}}"></position-map-dialog>
+    </google-map>
 
   </template>
 
@@ -81,12 +79,20 @@ own component. If a point isn't worth having a dialog, it won't get one.
       map: Object,
       startDate: String,
       endDate: String,
+      postId: {
+        type: Number,
+        notify: true
+      },
+      post: {
+        type: Object
+      },
       points: {
         type: Array,
         notify: true
       },
       selected: {
-        type: Object
+        type: Object,
+        notify: true
       },
       current: {
         type: Object,
@@ -96,9 +102,9 @@ own component. If a point isn't worth having a dialog, it won't get one.
         type: String,
         observer: '_routeChanged'
       },
-      displayCurrent: {
+      showCurrent: {
         type: Boolean
-      }
+      },
     },
 
     listeners: {
@@ -139,7 +145,10 @@ own component. If a point isn't worth having a dialog, it won't get one.
       var point = this._getPoint(event.detail.latLng.G, event.detail.latLng.K);
       if (point) {
         this.selected = point;
-        this.$.pointDialog.openDialog();
+        this.post = point.posts[0].id;
+        this.postId = point.posts[0].id;
+        this.fire('blog-post-selected');
+        // this.$.pointDialog.openDialog();
       }
     },
 
@@ -158,6 +167,11 @@ own component. If a point isn't worth having a dialog, it won't get one.
 
     handlePrevious: function() {
       this.points = this._points = this.$.previousAjax.lastResponse.points;
+    },
+
+    clickEvents: function(point) {
+      // As we add more events, we can make this better-er.
+      return point.posts && point.posts.length > 0;
     },
 
     _getPoint: function(lat, lng) {

@@ -1,28 +1,28 @@
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
 <!-- https://elements.polymer-project.org/elements/paper-dialog -->
 
 
 <dom-module id="position-map-dialog">
   <template>
-    <paper-dialog id="positionDialog" entry-animation="fade-in-animation" exit-animation="fade-out-animation" modal>
+
+    <iron-ajax
+      id="getPost"
+      url="/post.json"
+      handle-as="json"
+      last-response="{{fullPost}}"
+      debounce-duration="200"></iron-ajax>
+    <!-- For development: url="/post.json" -->
+    <!-- For production: url="/api/post/" -->
+
+    <paper-dialog id="positionDialog" backdrop>
       <h2>{{title}}</h2>
-      <template is="dom-if" if="{{!post}}">
-        <paper-dialog-scrollable>
-          Multi posts... Brendan's lazy.
-        </paper-dialog-scrollable>
-        <div class="buttons">
-          <paper-button dialog-dismiss>Neat</paper-button>
-        </div>
-      </template>
-      <template is="dom-if" if="{{post}}">
-        <paper-dialog-scrollable>
-          Single post... Brendan's lazy.
-        </paper-dialog-scrollable>
-        <div class="buttons">
-          <paper-button dialog-dismiss>Neat</paper-button>
-        </div>
-      </template>
+      <paper-dialog-scrollable id="dialogContent"></paper-dialog-scrollable>
+      <div id="buttonsBox" class="buttons">
+        <paper-button hidden$="{{!showBack}}" on-tap="clearFull">Back</paper-button>
+        <paper-button dialog-dismiss>Done</paper-button>
+      </div>
     </paper-dialog>
   </template>
 </dom-module>
@@ -31,51 +31,140 @@
     is: 'position-map-dialog',
     properties: {
       point: {
-        type: Object,  // city, state, country, post, photos...
-        observer: '_updateStatics',
+        type: Object,
+        observer: '_pointChanged',
+        notify: true
       },
-      post: Object,
+      post: {
+        type: Object,
+        observer: '_postChanged'
+      },
       title: {
         type: String,
         computed: '_getTitle(point, post)'
+      },
+      formattedDate: {
+        type: String,
+        computed: '_formattedDate(post, fullPost)'
+      },
+      fullPost: {
+        type: Object,
+        observer: '_fullPostChanged'
+      },
+      isMulti: {
+        type: Boolean,
+        computed: '_isMultiPost(point)'
+      },
+      showBack: {
+        type: Boolean,
+        computed: '_showBack(point, fullPost)'
       }
+    },
+    onPostClick: function() {
+      // Should change the URL
+    },
+    _pointChanged: function() {
+      if (this.point) {
+        if (this.point.posts.length == 1) {
+          this.post = this.point.posts[0]
+        }
+        this.$.positionDialog.open();
+      } else {
+        this.$.positionDialog.close();
+      }
+    },
+    _reset: function() {
+      this.post = null;
+      this.fullPost = null;
+      this.$.dialogContent.innerHTML = '';
     },
     openDialog: function() {
-      console.log('opening dialog!');
+      this._reset();
       if (this.point && this.point.posts && this.point.posts.length == 1) {
         this.post = this.point.posts[0]
-      } else {
-        this.post = null;
       }
-      this.$.positionDialog.open();
+      this._delayOpen();
+    },
+    _delayOpen: function() {
+      // We put in a delay so that the contents will render, otherwise
+      // the dialog is displayed at a strange size and location.
+      var positionDialog = this.$.positionDialog;
+      var scrollable = this.$.dialogContent;
+      setTimeout(function() {
+        scrollable.attached();
+        positionDialog.open();
+      }, 150);
     },
     closeDialog: function() {
-      this.post = null;
       this.$.positionDialog.close();
+      this._reset();
     },
-    isMultiPost: function() {
+    clearFull: function() {
+      this.$.positionDialog.close();
+      this.post = null;
+      this.fullPost = null;
+      this._delayOpen();
+    },
+    _isMultiPost: function() {
       return this.point && this.point.posts && this.point.posts.length > 1;
+    },
+    _showBack: function() {
+      // Show back if it's a multi post and the full post is open.
+      return this._isMultiPost() && this.fullPost;
+    },
+    _getAttr: function(attr) {
+      if (this.fullPost) {
+        return this.fullPost[attr];
+      } else if (this.post) {
+        return this.post[attr];
+      }
+      return null;
     },
     _getTitle: function() {
       if (this.post) {
-        return this.post.title;
+        return this._getAttr('title');
       } else if (this.point) {
         return this.point.title;
       }
       return 'Untitled';
     },
-    _updateStatics: function() {
-      this.title = '';
-      if (this.point) {
-        if (this.point.city) {
-          this.title = this.point.city + ', ' + this.point.country;
-        } else {
-          this.title = 'Somewhere in ' + this.point.country;
-        }
+    formattedEpoch: function(epoch) {
+      var d = new Date(0);
+      d.setUTCSeconds(epoch);
+      return d.toLocaleDateString();
+    },
+    _formattedDate: function() {
+      var epoch = this._getAttr('epoch');
+      if (epoch) {
+        return this.formattedEpoch(epoch)
+      }
+      return 'Unknown time';
+    },
+    _postChanged: function() {
+      // TODO: Store posts between requests.
+      console.log('post changed');
+      if (this.post) {
+        console.log('fetching new post');
+        this.$.getPost.params = {id: this.post.id};
+        this.$.getPost.generateRequest();
       }
     },
-    displayPost: function(post) {
-
+    injectHTML: function(content, container) {
+      this.$.positionDialog.close();
+      container.innerHTML = content;
+      /* var elem = document.createElement('div');
+      elem.innerHTML = content;
+      Polymer.dom(container).appendChild(elem); */
+      this._delayOpen();
     },
+    _fullPostChanged: function() {
+      console.log(this.fullPost);
+      if (this.fullPost) {
+        this.injectHTML(this.fullPost.content, this.$.dialogContent);
+      }
+    },
+    _makeScrollable: function() {
+
+    }
   });
 </script>

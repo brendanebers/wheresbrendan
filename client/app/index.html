@@ -123,6 +123,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-item>
               </a>
 
+              <a href="/blog/17" data-route="blog" on-click="onBlogClick">
+                <paper-item>
+                  <iron-icon icon="maps:map"></iron-icon>
+                  <paper-item-body two-line>
+                    <div>Blog</div>
+                    <div secondary>
+                      That's right
+                    </div>
+                  </paper-item-body>
+                </paper-item>
+              </a>
+
           </paper-menu>
           <template is="dom-if" if="{{showingHistory}}">
             <hr>
@@ -140,8 +152,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <span class="flex"></span>
 
-            <paper-icon-button icon="refresh" on-tap="refreshCurrent()"></paper-icon-button>
-            <paper-icon-button icon="event" on-tap="showRangeSelector"></paper-icon-button>
+            <paper-icon-button hidden$="{{!showingMap}}" icon="event" on-tap="showRangeSelector"></paper-icon-button>
+            <paper-icon-button hidden$="{{showingMap}}" icon="maps:map" on-tap="returnToHistory"></paper-icon-button>
 
             <!-- Application name -->
 
@@ -151,18 +163,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </paper-toolbar>
 
           <!-- Main Content -->
-            <iron-pages class="content" attr-for-selected="data-route" selected="{{selectedRoute()}}">
+            <iron-pages class="content" attr-for-selected="data-route" selected="{{selectedRoute}}">
 
-              <section data-route="other-page" style="padding: 20px;">
-                <paper-material elevation="1">
-                  <p class="paper-font-subhead">Other Stuff</h2>
-                  <p class="paper-font-body2">Not sure what might go here yet, but something could.</p>
-                </paper-material>
+              <section data-route="blog" style="padding: 20px;">
+                <blog-post-list></blog-post-list>
+              </section>
+
+              <section data-route="post" style="padding: 20px;">
+                <blog-post page="{{page}}" post-id="{{postId}}"></blog-post>
               </section>
 
               <section data-route="map" id="then-section">
                 <range-selector start-date="{{startDate}}" end-date="{{endDate}}" id="rangeSelector" current-time="{{current.epoch}}"></range-selector>
-                <position-map start-date="{{startDate}}" end-date="{{endDate}}" current="{{current}}" route="[[route]]" id="positionMap"></position-map>
+                <position-map show-current="{{showCurrent}}" post-id="{{postId}}" start-date="{{startDate}}" end-date="{{endDate}}" current="{{current}}" route="[[route]]" id="positionMap"></position-map>
               </section>
 
             </iron-pages>
