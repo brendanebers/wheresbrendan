@@ -102,3 +102,11 @@ def GetPost():
     our_id = int(request.values.get('id'))
     post = post_model.GetPostDict(our_id, private=False)
     return json.dumps(post)
+
+
+@app.route('/api/post_list/')
+def GetPostList():
+    """Get a list of post titles, URLs, IDs and epochs."""
+    # TODO: Pagination and date/time ranges.
+    posts = post_model.GetPostDictList(private=False)
+    return json.dumps(sorted(posts, key=lambda p: p['epoch'], reverse=True))
