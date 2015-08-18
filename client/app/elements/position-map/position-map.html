@@ -129,9 +129,11 @@ own component. If a point isn't worth having a dialog, it won't get one.
 
     markerTitle: function(point) {
       if (point.title) {
-        return point.title + ' ' + point.epoch;
+        return point.title;
       }
-      return point.epoch;
+      var d = new Date(0);
+      d.setUTCSeconds(point.epoch);
+      return d.toLocaleString();
     },
 
     _markerClicked: function(event) {

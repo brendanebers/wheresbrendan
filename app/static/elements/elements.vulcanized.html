@@ -20481,9 +20481,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     markerTitle: function(point) {
       if (point.title) {
-        return point.title + ' ' + point.epoch;
+        return point.title;
       }
-      return point.epoch;
+      var d = new Date(0);
+      d.setUTCSeconds(point.epoch);
+      return d.toLocaleString();
     },
 
     _markerClicked: function(event) {
@@ -20696,9 +20698,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     _postChanged: function() {
       if (this.fullPost.content && this.fullPost.link) {
         this.$.dialogContent.innerHTML = this.fullPost.content;
+
+        // This is redundant if the link is already in the URL.
         var arr = this.fullPost.link.split('/');
         var title = arr[arr.length - 2];
-        // page.replace('/blog/' + this.fullPost.id + '/' + title);
+        page.replace('/blog/' + this.fullPost.id + '/' + title);
       }
     },
 
