@@ -36,14 +36,14 @@ class Position(db.Model):
     speed_from_prev = db.Column(db.Float)
 
     # Weather information, although this might want to be elsewhere.
-    temperature = db.Column(db.Float)
-    apparent_temperature = db.Column(db.Float)  # "Feels like"
-    humidity = db.Column(db.Float)
-    weather_summary = db.Column(db.Unicode)
-    precip_probability = db.Column(db.Float)
-    precip_intensity = db.Column(db.Float)
-    precip_type = db.Column(db.Unicode)
-    wind_speed = db.Column(db.Unicode)
+    # temperature = db.Column(db.Float)
+    # apparent_temperature = db.Column(db.Float)  # "Feels like"
+    # humidity = db.Column(db.Float)
+    # weather_summary = db.Column(db.Unicode)
+    # precip_probability = db.Column(db.Float)
+    # precip_intensity = db.Column(db.Float)
+    # precip_type = db.Column(db.Unicode)
+    # wind_speed = db.Column(db.Unicode)
 
     # I also want to start storing battery condition: string or enum?
     # that would be super helpful for alerting me that I need to charge.
