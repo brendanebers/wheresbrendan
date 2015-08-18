@@ -20330,12 +20330,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: String,
       }
     },
+
+    _postById: function(id) {
+      for (var i = 0; i < this.point.posts.length; i++) {
+        if (this.point.posts[i].id == id) {
+          return this.point.posts[i];
+        }
+      }
+    },
+
     onPostClick: function(event) {
-      this.fire('blog-post-selected', {postId: event.currentTarget.id});
+      var post = this._postById(event.currentTarget.id);
+      var details = {postId: event.currentTarget.id};
+      if (post) {
+        details.link = post.link;
+      }
+      this.fire('blog-post-selected', details);
     },
     _dialogTitle: function(point) {
       var cnt = point.posts.length;
-      if (cnt == 1) {
+      if (cnt === 1) {
         return 'One Post Written Here';
       }
       return cnt + ' Posts Writen Here';
@@ -20666,21 +20680,96 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
     },
 
+    _clearPost: function() {
+      this.fullPost = {title: 'Loading...'};
+      this.$.dialogContent.innerHTML = '';
+    },
+
     _idChanged: function() {
       if (this.postId) {
+        this._clearPost();
         this.$.getPost.params = {id: this.postId};
         this.$.getPost.generateRequest();
       }
     },
 
     _postChanged: function() {
-      this.$.dialogContent.innerHTML = this.fullPost.content;
-      var arr = this.fullPost.link.split('/');
-      var title = arr[arr.length - 2];
-      page.replace('/blog/' + this.fullPost.id + '/' + title);
+      if (this.fullPost.content && this.fullPost.link) {
+        this.$.dialogContent.innerHTML = this.fullPost.content;
+        var arr = this.fullPost.link.split('/');
+        var title = arr[arr.length - 2];
+        // page.replace('/blog/' + this.fullPost.id + '/' + title);
+      }
     },
 
     _formattedDate: function(post) {
+      if (!post || !post.epoch) {
+        // Oh well, we don't have a date.
+        return '';
+      }
+      var d = new Date(0);
+      d.setUTCSeconds(post.epoch);
+      return d.toLocaleDateString();
+    },
+  });
+</script>
+<dom-module id="blog-post-list" assetpath="blog-post/">
+
+  <style>
+    .blog-post-list {
+      cursor: pointer;
+    }
+
+  </style>
+
+  <template>
+
+    <iron-ajax auto="" id="getPostList" url="/api/post_list/" handle-as="json" last-response="{{postList}}" debounce-duration="150"></iron-ajax>
+    
+    
+
+    <template is="dom-repeat" items="{{postList}}" as="post"> 
+        <paper-material class="blog-post" elevation="1" on-click="_postClicked" id="{{post.id}}">
+          <div class="paper-font-title">{{post.title}}</div>
+          <div class="paper-font-subhead">
+            <span>{{formatDate(post)}}</span>
+            <template is="dom-if" if="post.location">{{post.location}}</template>
+          </div>
+        </paper-material>
+    </template>
+
+  </template>
+</dom-module>
+<script>
+
+  Polymer({
+    is: 'blog-post-list',
+    properties: {
+      postList: Object,
+      selected: {
+        type: Object,
+        notify: true
+      },
+    },
+
+    _postById: function(id) {
+      for (var i = 0; i < this.postList.length; i++) {
+        if (this.postList[i].id == id) {
+          return this.postList[i];
+        }
+      }
+    },
+
+    _postClicked: function(event) {
+      var post = this._postById(event.currentTarget.id);
+      var details = {postId: event.currentTarget.id};
+      if (post) {
+        details.link = post.link;
+      }
+      this.fire('blog-post-selected', details);
+    },
+
+    formatDate: function(post) {
       if (!post) {
         return 'Unknown time';
       }
@@ -20688,6 +20777,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       d.setUTCSeconds(post.epoch);
       return d.toLocaleDateString();
     },
+
+    _postUrl: function(post) {
+      if (!post) {
+        return '#';
+      }
+      var arr = post.link.split('/');
+      var title = arr[arr.length - 2];
+      return '/blog/' + post.id + '/' + title;
+    },
   });
+
 </script>
 </div></body></html>
