@@ -44,8 +44,22 @@
         type: String,
       }
     },
+
+    _postById: function(id) {
+      for (var i = 0; i < this.point.posts.length; i++) {
+        if (this.point.posts[i].id == id) {
+          return this.point.posts[i];
+        }
+      }
+    },
+
     onPostClick: function(event) {
-      this.fire('blog-post-selected', {postId: event.currentTarget.id});
+      var post = this._postById(event.currentTarget.id);
+      var details = {postId: event.currentTarget.id};
+      if (post) {
+        details.link = post.link;
+      }
+      this.fire('blog-post-selected', details);
     },
     _dialogTitle: function(point) {
       var cnt = point.posts.length;

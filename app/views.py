@@ -35,7 +35,7 @@ def Images(filename):
     return app.send_static_file(os.path.join('images', filename))
 
 
-def _MakeEpoch(val, default):
+def _MakeEpoch(val, default, supplement=False):
     if not val:
         return default
     elif isinstance(val, (int, float)):
@@ -45,9 +45,15 @@ def _MakeEpoch(val, default):
             return int(val)
         dt = parser.parse(val)
         # DT to epoch conversion from: http://stackoverflow.com/a/11111177
-        epoch = datetime.datetime.utcfromtimestamp(0)
-        delta = dt - epoch
-        return delta.total_seconds()
+        nineteen_seventy = datetime.datetime.utcfromtimestamp(0)
+        delta = dt - nineteen_seventy
+        epoch = delta.total_seconds()
+        if supplement:
+            # We add a day+. This is cheating, but the UI mostly supports dates,
+            # and I'd rather the date be inclusive. The "+" is for timezones.
+            print 'supplemented!'
+            epoch += 30*60*60
+        return epoch
     return default
 
 
@@ -65,7 +71,7 @@ def GetPositions():
 def GetHistory():
     """Return positions and posts within specified time range."""
     start = _MakeEpoch(request.args.get('start'), 0)
-    end = _MakeEpoch(request.args.get('end'), 999999999999)
+    end = _MakeEpoch(request.args.get('end'), 999999999999, supplement=True)
     history = combined_model.Range(start=start, end=end)
     return json.dumps({'points': history})
 
@@ -102,3 +108,11 @@ def GetPost():
     our_id = int(request.values.get('id'))
     post = post_model.GetPostDict(our_id, private=False)
     return json.dumps(post)
+
+
+@app.route('/api/post_list/')
+def GetPostList():
+    """Get a list of post titles, URLs, IDs and epochs."""
+    # TODO: Pagination and date/time ranges.
+    posts = post_model.GetPostDictList(private=False)
+    return json.dumps(sorted(posts, key=lambda p: p['epoch'], reverse=True))

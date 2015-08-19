@@ -56,6 +56,13 @@ def GetPostDict(our_id, private=False):
     return post_dict
 
 
+def GetPostDictList(private=False):
+    """Return a list of abbreviated Post dictionaries."""
+    query = PostRange(private=private)
+    posts = utils.RowsAsDicts(query, only=None, skip=['content'])
+    return posts
+
+
 def SavePosts(posts):
     """Save new posts and update existing posts."""
     old_posts = {}

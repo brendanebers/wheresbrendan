@@ -100,7 +100,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <!-- <a> is necessary for page.js support. paper-item looks better. -->
               <a href="/now" data-route="now" on-click="onDataRouteClick">
                 <paper-item>
-                  <iron-icon icon="maps:my-location"></iron-icon>
+                  <!--iron-icon icon="maps:my-location"></iron-icon-->
                   <paper-item-body two-line>
                     <div>{{currentLocation}}</div>
                     <div secondary>{{locationSince}}</div>
@@ -110,7 +110,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
               <a href="{{historyUrl}}" data-route="history" on-click="onHistoryRouteClick">
                 <paper-item>
-                  <iron-icon icon="maps:map"></iron-icon>
+                  <!--iron-icon icon="maps:map"></iron-icon-->
                   <paper-item-body two-line>
                     <div>History</div>
                     <div secondary>
@@ -123,17 +123,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-item>
               </a>
 
-              <!--a href="/blog" data-route="blog" on-click="onBlogClick">
+              <a href="/blog" data-route="blog" on-click="onDataRouteClick">
                 <paper-item>
-                  <iron-icon icon="maps:map"></iron-icon>
+                  <!--iron-icon icon="maps:map"></iron-icon-->
                   <paper-item-body two-line>
                     <div>Blog</div>
-                    <div secondary>
-                      That's right
-                    </div>
                   </paper-item-body>
                 </paper-item>
-              </a-->
+              </a>
 
           </paper-menu>
           <template is="dom-if" if="{{showingHistory}}">

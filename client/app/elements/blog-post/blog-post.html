@@ -39,23 +39,34 @@
       },
     },
 
+    _clearPost: function() {
+      this.fullPost = {title: 'Loading...'};
+      this.$.dialogContent.innerHTML = '';
+    },
+
     _idChanged: function() {
       if (this.postId) {
+        this._clearPost();
         this.$.getPost.params = {id: this.postId};
         this.$.getPost.generateRequest();
       }
     },
 
     _postChanged: function() {
-      this.$.dialogContent.innerHTML = this.fullPost.content;
-      var arr = this.fullPost.link.split('/');
-      var title = arr[arr.length - 2];
-      page.replace('/blog/' + this.fullPost.id + '/' + title);
+      if (this.fullPost.content && this.fullPost.link) {
+        this.$.dialogContent.innerHTML = this.fullPost.content;
+
+        // This is redundant if the link is already in the URL.
+        var arr = this.fullPost.link.split('/');
+        var title = arr[arr.length - 2];
+        page.replace('/blog/' + this.fullPost.id + '/' + title);
+      }
     },
 
     _formattedDate: function(post) {
-      if (!post) {
-        return 'Unknown time';
+      if (!post || !post.epoch) {
+        // Oh well, we don't have a date.
+        return '';
       }
       var d = new Date(0);
       d.setUTCSeconds(post.epoch);

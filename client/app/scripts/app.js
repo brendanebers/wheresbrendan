@@ -146,7 +146,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   addEventListener('blog-post-selected', function(event) {
     app.postId = event.detail.postId;
-    app.changePage('/blog/' + app.postId);
+    if (event.detail.link) {
+      var arr = event.detail.link.split('/');
+      var title = arr[arr.length - 2];
+      app.changePage('/blog/' + app.postId + '/' + title);
+    } else {
+      app.changePage('/blog/' + app.postId);
+    }
   });
 
   addEventListener('date-range-updated', function() {
