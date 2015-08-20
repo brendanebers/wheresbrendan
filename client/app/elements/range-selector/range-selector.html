@@ -6,15 +6,16 @@
   <template>
     <paper-dialog id="rangeDialog" entry-animation="slide-down-animation" exit-animation="fade-out-animation" modal>
       <h2>Pick a date range</h2>
-      <p>
-        <input name="start" placeholder="Start Date" value="{{internalStartDate::input}}">
-        <br>
-        <input name="end" placeholder="End Date" value="{{internalEndDate::input}}">
-      </p>
-      <div class="buttons">
-        <paper-button dialog-dismiss>Cancel</paper-button>
-        <paper-button dialog-confirm autofocus on-tap="updateRange">Accept</paper-button>
-      </div>
+      <form>
+        <p>
+          <paper-input label="Start Date" name="start" value="{{internalStartDate::input}}" on-keypress="checkSubmit"></paper-input>
+          <paper-input label="End Date" name="end" value="{{internalEndDate::input}}" on-keypress="checkSubmit"></paper-input>
+        </p>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button dialog-confirm autofocus on-tap="updateRange" type="submit">Accept</paper-button>
+        </div>
+      </form>
     </paper-dialog>
   </template>
 </dom-module>
@@ -32,6 +33,13 @@
         notify: true
       },
       currentTime: Number
+    },
+
+    checkSubmit: function(e) {
+      if (e.keyCode === 13) {
+        this.$.rangeDialog.close();
+        this.updateRange();
+      }
     },
 
     open: function() {
