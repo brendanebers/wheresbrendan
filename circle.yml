@@ -1,0 +1,21 @@
+machine:
+  node:
+    version: v0.12.7
+  python:
+    version: 2.7.6
+
+dependencies:
+  cache_directories:
+    - client/node_modules
+  post:
+    - npm install -g gulp bower
+    - npm prune && npm install:
+        pwd: client
+    - bower install:
+        pwd: client
+
+test:
+  override:
+    - nosetests --with-coverage --cover-html --cover-package=app --cover-inclusive --cover-html-dir=$CIRCLE_ARTIFACTS/cover
+    - gulp test:
+        pwd: client
