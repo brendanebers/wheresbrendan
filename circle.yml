@@ -1,0 +1,14 @@
+dependencies:
+  cache_directories:
+    - client/node_modules
+  override:
+    - npm install:
+        pwd: client
+    - bower install:
+        pwd: client
+
+test:
+  override:
+    - nosetests
+    - gulp test:
+        pwd: client
