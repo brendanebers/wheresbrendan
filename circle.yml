@@ -16,6 +16,6 @@ dependencies:
 
 test:
   override:
-    - nosetests --with-coverage --cover-html --cover-package=app --cover-inclusive
+    - nosetests --with-coverage --cover-html --cover-package=app --cover-inclusive --cover-html-dir=$CIRCLE_ARTIFACTS/cover
     - gulp test:
         pwd: client
