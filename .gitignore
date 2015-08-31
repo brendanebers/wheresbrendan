@@ -21,3 +21,5 @@ celerybeat-schedule
 celerybeat-schedule.db
 environments/*.bat
 environments/*.sh
+/cover/
+.coverage

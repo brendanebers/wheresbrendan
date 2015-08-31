@@ -16,6 +16,6 @@ dependencies:
 
 test:
   override:
-    - nosetests
+    - nosetests --with-coverage --cover-html --cover-package=app --cover-inclusive
     - gulp test:
         pwd: client
