@@ -8,9 +8,7 @@ dependencies:
   cache_directories:
     - client/node_modules
   post:
-    - npm install:
-        pwd: client
-    - bower install:
+    - npm install -g gulp bower && npm install && bower install:
         pwd: client
 
 test:
