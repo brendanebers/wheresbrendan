@@ -1,7 +1,13 @@
+machine:
+  node:
+    version: v0.12.7
+  python:
+    version: 2.7.6
+
 dependencies:
   cache_directories:
     - client/node_modules
-  override:
+  post:
     - npm install:
         pwd: client
     - bower install:
