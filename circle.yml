@@ -7,7 +7,6 @@ machine:
 dependencies:
   cache_directories:
     - client/node_modules
-    - lib
   post:
     - npm install -g gulp bower
     - npm prune && npm install:
