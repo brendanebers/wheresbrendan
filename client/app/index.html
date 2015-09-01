@@ -71,6 +71,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     I wanted to display them in marker tooltips as a quick hover-over indicator
     of the weather at the position, but the partly cloudy one doesn't work.
   -->
+
+  <script>
+    window.addEventListener('load', function() {
+    	// Set a timeout...
+    	setTimeout(function(){
+    		// Hide the address bar!
+    		window.scrollTo(0, 1);
+    	}, 0);
+    });
+  </script>
 </head>
 
 <body unresolved class="fullbleed layout vertical">
