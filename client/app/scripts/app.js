@@ -168,7 +168,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     app.changePage(app.historyUrl);
   };
 
-  window.addEventListener("load",function() {
+  window.addEventListener('load', function() {
   	// Set a timeout...
   	setTimeout(function(){
   		// Hide the address bar!
