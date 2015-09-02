@@ -1,7 +1,13 @@
+import json
 import mock
 import unittest
 
+from app.models import position as position_model
 from app.tasks import basic_geo
+
+
+_POS_1 = {'id': 1, 'latitude': 0, 'longitude': 0, 'epoch': 0}
+_POS_2 = {'id': 2, 'latitude': 0, 'longitude': 0.8983153, 'epoch': 600}
 
 
 class BasicGeoTestCase(unittest.TestCase):
@@ -19,17 +25,41 @@ class BasicGeoTestCase(unittest.TestCase):
         compass = basic_geo.ReadableBearing(45)
         self.assertEqual(compass, 'NE')
 
-    def testStoreDistanceTraversed(self):
-        # TODO: Write these tests.
+
+class StoreDistanceTraversedTestCase(unittest.TestCase):
+
+    def setUp(self):
         patcher = mock.patch.multiple(
-            basic_geo.model, GetLastPositions=mock.DEFAULT,
-            GetPositionsByIds=mock.DEFAULT, autospec=True)
+            basic_geo.model,
+            GetLastPositions=mock.DEFAULT,
+            GetPositionsByIds=mock.DEFAULT,
+            UpdatePositions=mock.DEFAULT,
+            autospec=True)
         patcher.start()
+        basic_geo.model.GetLastPositions.return_value = []
+        basic_geo.model.GetPositionsByIds.return_value = []
         self.addCleanup(patcher.stop)
 
+    def testStoreDistanceTraversed(self):
+        pos_2 = position_model.Position(**_POS_2)
+        basic_geo.model.GetPositionsByIds.return_value = [pos_2]
 
-_POS_1 = {'latitude': 0, 'longitude': 0, 'epoch': 0}
-_POS_2 = {'latitude': 0, 'longitude': 0.8983153, 'epoch': 600}
+        count = basic_geo.StoreDistanceTraversed(json.dumps([_POS_1, _POS_2]))
+        self.assertEqual(count, 1)
+
+        self.assertTrue(pos_2.distance_from_prev)
+        self.assertTrue(pos_2.time_from_prev)
+        self.assertTrue(pos_2.speed_from_prev)
+
+        self.assertEqual(basic_geo.model.UpdatePositions.call_count, 1)
+
+    def testStoreDistanceTraversed_NoRows(self):
+        count = basic_geo.StoreDistanceTraversed('[]')
+        self.assertEqual(count, 0)
+
+    def testStoreDistanceTraversed_SingleRow(self):
+        count = basic_geo.StoreDistanceTraversed(json.dumps([_POS_1]))
+        self.assertEqual(count, 0)
 
 
 class DeltasTestCase(unittest.TestCase):

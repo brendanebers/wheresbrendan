@@ -38,7 +38,7 @@ def GetForecastWeather(lat, lng, hours):
     return hour
 
 
-# This task name will be registered in app/tasks/spot.py
+# This task name is registered in app/tasks/spot.py
 @celery_app.task
 def StoreWeatherInformation(row_json):
     """Retrieve weather information for lat/long."""

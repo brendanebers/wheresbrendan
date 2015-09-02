@@ -5,6 +5,7 @@ import json
 import math
 
 from app.models import position as model
+from app.models import utils as model_utils
 from app.tasks.celery_app import celery_app
 
 
@@ -80,20 +81,23 @@ def StoreDistanceTraversed(rows_json):
     # Most recent first.
     rows.sort(key=lambda r: r['epoch'], reverse=True)
     if not rows:
-        return
+        return 0
 
     previous = model.GetLastPositions(1, rows[-1]['epoch'])
-    rows.extend(model.RowsAsDicts(previous))
+    rows.extend(model_utils.RowsAsDicts(previous))
 
     if len(rows) < 2:
-        return  # Can't compare distances between 1 object.
+        return 0  # Can't compare distances between 1 object.
 
     deltas = {}
     for idx, row in enumerate(rows[:-1]):  # Don't calculate delta for last row.
         deltas[row['id']] = _Deltas(row, rows[idx+1])
+
+    print deltas
 
     # Update the rows in the database.
     row_objs = model.GetPositionsByIds(deltas.keys())
     for row in row_objs:
         deltas[row.id].UpdateRow(row)
     model.UpdatePositions(row_objs)
+    return len(row_objs)
