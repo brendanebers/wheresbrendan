@@ -54,8 +54,9 @@ def PostFetch(positions):
 
     # Tasks that only operate on a single row at a time.
     for row_dict in rows_dict:
-        row_json = json.dumps(row_dict)
-        celery_app.send_task('app.tasks.maps.StoreMapsInformation', [row_json])
+        args = [json.dumps(row_dict)]
+        celery_app.send_task('app.tasks.maps.StoreMapsInformation', args)
+        celery_app.send_task('app.tasks.weather.StoreWeatherInformation', args)
 
 
 # Run every 10 minutes.
