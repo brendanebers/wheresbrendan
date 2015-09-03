@@ -57,7 +57,10 @@
         // This is redundant if the link is already in the URL.
         var arr = this.fullPost.link.split('/');
         var title = arr[arr.length - 2];
-        page.replace('/blog/' + this.fullPost.id + '/' + title);
+        var newUrl = '/blog/' + this.fullPost.id + '/' + title;
+        if (page.current !== newUrl) {
+          page.replace(newUrl);
+        }
       }
     },
 
