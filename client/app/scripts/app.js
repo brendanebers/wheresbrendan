@@ -62,14 +62,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   app.onDataRouteClick = function() {
     app.hideDrawer();
     app._selectedRoute();
-    // console.log('on data route clicked, sending page view');
-    // ga('send', 'pageview', page.current);
   };
 
   app.changePage = function(url) {
     app.hideDrawer();
     page(url, null, null, false);
-    console.log('we are doing a page change');
     app._selectedRoute();
   };
 
