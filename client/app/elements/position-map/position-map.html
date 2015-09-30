@@ -132,11 +132,10 @@ own component. If a point isn't worth having a dialog, it won't get one.
     },
 
     _markerClicked: function(event) {
-      var point = this._getPoint(event.detail.latLng.G, event.detail.latLng.K);
+      var point = this._getPoint(event.target.latitude, event.target.longitude);
       if (point) {
         this.selected = point;
         this.$.positionDialog.openDialog();
-        // this.$.pointDialog.openDialog();
       }
     },
 
@@ -175,6 +174,7 @@ own component. If a point isn't worth having a dialog, it won't get one.
       var point;
       for (var i = 0; i < this.points.length; i++) {
         point = this.points[i];
+        console.log(lat + ' ' + lng + ' ' + point.latitude + ' ' + point.longitude);
         if (eq(point.latitude, lat) && eq(point.longitude, lng)) {
           return point;
         }
