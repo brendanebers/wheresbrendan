@@ -23,12 +23,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     page('/now', function () {
       app.route = 'now';
       app._selectedRoute();
+      window.ga('send', 'pageview', page.current);
     });
 
     page('/history', function () {
       app.route = 'history';
       app.showRangeSelector();
       app._selectedRoute();
+      window.ga('send', 'pageview', page.current);
     });
 
     page('/history/:startDate/to/:endDate', function(ctx) {
@@ -37,23 +39,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       app.startDate = ctx.params.startDate;
       app.endDate = ctx.params.endDate;
       app._selectedRoute();
-    });
-
-    page('/blog', function() {
-      app.route = 'blog';
-      app._selectedRoute();
-    });
-
-    page('/blog/:postId', function(ctx) {
-      app.route = 'post';
-      app.postId = ctx.params.postId;
-      app._selectedRoute();
+      window.ga('send', 'pageview', page.current);
     });
 
     page('/blog/:postId/:title', function(ctx) {
       app.route = 'post';
       app.postId = ctx.params.postId;
       app._selectedRoute();
+      window.ga('send', 'pageview', page.current);
+    });
+
+    page('/blog/:postId', function(ctx) {
+      app.route = 'post';
+      app.postId = ctx.params.postId;
+      app._selectedRoute();
+      window.ga('send', 'pageview', page.current);
+    });
+
+    page('/blog', function() {
+      app.route = 'blog';
+      app._selectedRoute();
+      window.ga('send', 'pageview', page.current);
     });
 
     /* Work in progress
