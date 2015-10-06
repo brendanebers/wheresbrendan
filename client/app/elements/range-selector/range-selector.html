@@ -1,6 +1,6 @@
 <dom-module id="range-selector">
   <template>
-    <paper-dialog id="rangeDialog" entry-animation="slide-down-animation" exit-animation="fade-out-animation" modal>
+    <paper-dialog id="rangeDialog" entry-animation="slide-down-animation" exit-animation="fade-out-animation" on-iron-overlay-opened="patchOverlay" modal>
       <h2>Pick a date range</h2>
       <form>
         <p>
@@ -72,6 +72,13 @@
       this.startDate = this.internalStartDate;
       this.endDate = this.internalEndDate;
       this.fire('date-range-updated');
+    },
+
+    // https://github.com/PolymerElements/paper-dialog/issues/7
+    patchOverlay: function (e) {
+      if (e.target.withBackdrop) {
+        e.target.parentNode.insertBefore(e.target._backdrop, e.target);
+      }
     },
   });
 </script>

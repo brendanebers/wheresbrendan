@@ -748,7 +748,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </dom-module>
 <dom-module id="range-selector" assetpath="elements/range-selector/">
   <template>
-    <paper-dialog id="rangeDialog" entry-animation="slide-down-animation" exit-animation="fade-out-animation" modal="">
+    <paper-dialog id="rangeDialog" entry-animation="slide-down-animation" exit-animation="fade-out-animation" on-iron-overlay-opened="patchOverlay" modal="">
       <h2>Pick a date range</h2>
       <form>
         <p>
