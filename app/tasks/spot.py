@@ -15,6 +15,7 @@ _BRENDAN_FEED = '0Ya905pdnjgy0NflhOoL0GRDzLKUJn1nf'
 
 def GetSiteData(feed=_BRENDAN_FEED, start=0, limit=1000):
     """Return a list of Points sorted by epoch from oldest to newest."""
+    print 'Retrieving site data for feed %s' % feed
     points = _RawData(feed, start, limit)
     return sorted(points, key=lambda point: point['unixTime'])
 
@@ -22,6 +23,7 @@ def GetSiteData(feed=_BRENDAN_FEED, start=0, limit=1000):
 def GetFeedPositions(feed, start=0, limit=1000):
     """"Return positions for a given feed."""
     points = GetSiteData(feed, start=start, limit=limit)
+    print 'Retrieved %d points for feed %s' % (len(points), feed)
     positions = []
     for point in points:
         # TODO: Store battery information.
@@ -36,9 +38,10 @@ def StoreSingleFeedData(feed):
     """Store new Spot data for given feed."""
     print 'Storing data for feed %s' % feed
     positions = GetFeedPositions(feed)
+    print 'Checking positions against existing for feed %s' % feed
     positions = [p for p in positions if not model.PositionAt(p.epoch).count()]
     if positions:
-        print '  fetched %d new points for feed %s' % (len(positions), feed)
+        print 'Saving %d new points for feed %s' % (len(positions), feed)
         model.SavePositions(positions)
         PostFetch(positions)
 
@@ -77,6 +80,7 @@ def StoreNewData(feed=None, feeds=None):
 def _RawData(feed, start, limit):
     """Return raw list of point messages from the given feed."""
     url = _FeedUrl(feed, start, limit)
+    print 'Getting raw data for %s from url %s' % (feed, url)
     resp = urllib2.urlopen(url)
     data = json.loads(resp.read())
     # raw_point_message = {
