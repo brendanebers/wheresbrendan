@@ -293,6 +293,17 @@ gulp.task('default', ['clean'], function (cb) {
     cb);
 });
 
+gulp.task('ci', ['clean'], function (cb) {
+  // Uncomment 'cache-config' after 'rename-index' if you are going to use service workers.
+  runSequence(
+    'test',
+    ['copy', 'styles'],
+    'elements',
+    ['jshint', 'images', 'fonts', 'html'],
+    'vulcanize', 'rename-index', 'move-index', 'move-others', // 'cache-config',
+    cb);
+});
+
 // Load tasks for web-component-tester
 // Adds tasks for `gulp test:local` and `gulp test:remote`
 require('web-component-tester').gulp.init(gulp);

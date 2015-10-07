@@ -17,5 +17,20 @@ dependencies:
 test:
   override:
     - nosetests --with-coverage --cover-html --cover-package=app --cover-inclusive --cover-html-dir=$CIRCLE_ARTIFACTS/cover
-    - gulp test:
+    - gulp ci:
         pwd: client
+  post:
+    - sed -i -e "\$a/client/" .gitignore
+    - sed -i -e "\$a/environments/" .gitignore
+    - sed -i -e "\$a/wordpress/" .gitignore
+    - sed -i -e 's/static\///' app/.gitignore
+    - git config user.name "circleci"
+    - git config user.email "ebers.accounts@gmail.com"
+    - git add -A
+    - git commit -m "build"
+
+deployment:
+  staging:
+    branch: master
+    commands:
+      - git push -f git@heroku.com:runbebersrun.git
