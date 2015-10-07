@@ -33,4 +33,4 @@ deployment:
   staging:
     branch: master
     commands:
-      - git push -f git@heroku.com:runbebersrun.git
+      - git push -f git@heroku.com:runbebersrun.git master
