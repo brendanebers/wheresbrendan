@@ -52,7 +52,7 @@ def StoreWeatherInformation(row_json):
 
     row.temperature = data['temperature']  # 27.23 (celsius) # noqa
     row.apparent_temperature = data['apparentTemperature']  # noqa
-    row.humidity = data['humiditiy']  # 0.72 for 72% # noqa
+    row.humidity = data['humidity']  # 0.72 for 72% # noqa
     row.weather_summary = data['summary']  # like "Mostly Cloudy" # noqa
     row.precip_probability = data['precipProbability']
     row.precip_intensity = data['precipIntensity']
