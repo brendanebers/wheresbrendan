@@ -24,6 +24,8 @@ test:
     - sed -i -e "\$a/environments/" .gitignore
     - sed -i -e "\$a/wordpress/" .gitignore
     - sed -i -e 's/static\///' app/.gitignore
+    - rm -rf .git
+    - git init
     - git config user.name "circleci"
     - git config user.email "ebers.accounts@gmail.com"
     - git add -A
