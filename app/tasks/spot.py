@@ -64,7 +64,9 @@ def PostFetch(positions):
 
 # Run every 10 minutes.
 # http://celery.readthedocs.org/en/latest/userguide/periodic-tasks.html
-@decorators.periodic_task(run_every=schedules.crontab(minute='*/10'))
+@decorators.periodic_task(
+    run_every=schedules.crontab(minute='*/10'),
+    time_limit=30)
 def StoreNewData(feed=None, feeds=None):
     """Store new Spot data for given feed, feeds, or all feeds."""
     print 'Storing new spot data'
