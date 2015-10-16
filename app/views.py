@@ -15,6 +15,7 @@ from app.models import utils
 from app.tasks.celery_app import celery_app
 
 # Delete once we're back to asyncronous
+from app.tasks import gpslogger
 from app.tasks import spot
 
 
@@ -41,6 +42,18 @@ def Refresh():
     print 'View call to store new spot data'
     spot.StoreNewData()
     return 'success!'
+
+
+@app.route('/upload', methods=['GET', 'POST'])
+def Upload():
+    if request.method == 'POST':
+        print 'Receiving uploaded file.'
+        gpx_file = request.files['file']
+        gpslogger.HandleGPXFile(gpx_file)
+        return 'Successfully uploaded.'
+    return '''
+<!doctype html><form action="" method="post" enctype="multipart/form-data">
+<input type="file" name="file"> <input type="submit" value="Upload"></form> '''
 
 
 def _MakeEpoch(val, default, supplement=False):
