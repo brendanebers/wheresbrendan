@@ -33,6 +33,7 @@ def Index(*args, **kwargs):
 
 @app.route('/images/<filename>')
 def Images(filename):
+    """Return static images."""
     return app.send_static_file(os.path.join('images', filename))
 
 
@@ -46,6 +47,7 @@ def Refresh():
 
 @app.route('/upload', methods=['GET', 'POST'])
 def Upload():
+    """Page and endpoint to upload gpx files."""
     if request.method == 'POST':
         print 'Receiving uploaded file.'
         gpx_file = request.files['file']
@@ -58,6 +60,7 @@ def Upload():
 
 @app.route('/ignore')
 def Ignore():
+    """Returned page sets a custom dimension cookie to filter tracking."""
     return '''<!doctype html><head><script>
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
