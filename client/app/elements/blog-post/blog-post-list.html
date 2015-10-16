@@ -12,12 +12,10 @@
     <iron-ajax
       auto
       id="getPostList"
-      url="/api/post_list/"
+      url="/api/post_list.json"
       handle-as="json"
       last-response="{{postList}}"
       debounce-duration="150"></iron-ajax>
-    <!-- For development: url="/post_list.json" -->
-    <!-- For production: url="/api/post_list/" -->
 
     <template is="dom-repeat" items="{{postList}}" as="post"> <!-- How to pagify? -->
         <paper-material class="blog-post" elevation="1" on-click="_postClicked" id="{{post.id}}">

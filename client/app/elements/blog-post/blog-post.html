@@ -3,12 +3,10 @@
 
     <iron-ajax
       id="getPost"
-      url="/api/post/"
+      url="/api/post.json"
       handle-as="json"
       last-response="{{fullPost}}"
       debounce-duration="150"></iron-ajax>
-    <!-- For development: url="/post.json" -->
-    <!-- For production: url="/api/post/" -->
 
     <paper-material class="blog-post" elevation="1">
       <div class="paper-font-title">{{fullPost.title}}</div>

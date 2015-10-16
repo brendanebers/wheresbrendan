@@ -35,6 +35,14 @@ def Images(filename):
     return app.send_static_file(os.path.join('images', filename))
 
 
+@app.route('/refresh')
+def Refresh():
+    """Temporary, syncronous method for getting spot data."""
+    print 'View call to store new spot data'
+    spot.StoreNewData()
+    return 'success!'
+
+
 def _MakeEpoch(val, default, supplement=False):
     if not val:
         return default
@@ -57,17 +65,7 @@ def _MakeEpoch(val, default, supplement=False):
     return default
 
 
-@app.route('/api/get_positions/')
-def GetPositions():
-    """Return positions within specified time range."""
-    start = _MakeEpoch(request.args.get('start'), 0)
-    end = _MakeEpoch(request.args.get('end'), 999999999999)
-    positions = position_model.PositionRange(start=start, end=end)
-    return json.dumps(
-        {'points': utils.RowsAsDicts(positions, skip=['date_recorded'])})
-
-
-@app.route('/api/history/')
+@app.route('/api/history.json')
 def GetHistory():
     """Return positions and posts within specified time range."""
     start = _MakeEpoch(request.args.get('start'), 0)
@@ -76,7 +74,7 @@ def GetHistory():
     return json.dumps({'points': history})
 
 
-@app.route('/api/current/')
+@app.route('/api/current.json')
 def Current():
     """Return the current location information."""
     position_rows = position_model.GetLastPositions(1)
@@ -86,12 +84,20 @@ def Current():
     return json.dumps(position)
 
 
-@app.route('/api/spot_fetch/')
-def TemporarySpotFetch():
-    """Temporary, syncronous method for getting spot data."""
-    print 'View call to store new spot data'
-    spot.StoreNewData()
-    return 'success!'
+@app.route('/api/post.json')
+def GetPost():
+    """Get a specific post."""
+    our_id = int(request.values.get('id'))
+    post = post_model.GetPostDict(our_id, private=False)
+    return json.dumps(post)
+
+
+@app.route('/api/post_list.json')
+def GetPostList():
+    """Get a list of post titles, URLs, IDs and epochs."""
+    # TODO: Pagination and date/time ranges.
+    posts = post_model.GetPostDictList(private=False)
+    return json.dumps(sorted(posts, key=lambda p: p['epoch'], reverse=True))
 
 
 @app.route('/api/wordpress/')
@@ -100,19 +106,3 @@ def NewWordpress():
     post_id = str(request.values.get('id'))
     celery_app.send_task('app.tasks.wordpress.UpdatePost', [post_id])
     return 'added to the processing queue'
-
-
-@app.route('/api/post/')
-def GetPost():
-    """Get a specific post."""
-    our_id = int(request.values.get('id'))
-    post = post_model.GetPostDict(our_id, private=False)
-    return json.dumps(post)
-
-
-@app.route('/api/post_list/')
-def GetPostList():
-    """Get a list of post titles, URLs, IDs and epochs."""
-    # TODO: Pagination and date/time ranges.
-    posts = post_model.GetPostDictList(private=False)
-    return json.dumps(sorted(posts, key=lambda p: p['epoch'], reverse=True))

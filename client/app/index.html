@@ -89,12 +89,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <iron-ajax
       auto
       id="current_ajax"
-      url="/api/current/"
+      url="/api/current.json"
       handle-as="json"
       last-response="{{current}}"
       on-response="handleCurrent"></iron-ajax>
-    <!-- For development: url="/current.json" -->
-    <!-- For production: url="/api/current/" -->
 
       <paper-drawer-panel id="paperDrawerPanel" responsive-width="1280px">
         <div class="nav" drawer>
