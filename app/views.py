@@ -56,6 +56,20 @@ def Upload():
 <input type="file" name="file"> <input type="submit" value="Upload"></form> '''
 
 
+@app.route('/ignore')
+def Ignore():
+    return '''<!doctype html><head><script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-64868641-2', 'auto');
+ga('set', 'dimension1', 'hide-me');
+ga('send', 'pageview');
+</script></head><body><h1>Done</h1></body></html>'''
+
+
 def _MakeEpoch(val, default, supplement=False):
     if not val:
         return default
