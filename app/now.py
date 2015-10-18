@@ -11,7 +11,8 @@ def Now():
 
 def DtToEpoch(dt):
     """Convert a datetime to a en epoch."""
-    return (dt - datetime.datetime(1970, 1, 1)).total_seconds()
+    time_diff = dt - datetime.datetime(1970, 1, 1, tzinfo=dt.tzinfo)
+    return time_diff.total_seconds()
 
 
 def HumanizeSeconds(delta_seconds):
