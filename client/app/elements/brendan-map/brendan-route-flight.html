@@ -1,0 +1,28 @@
+<dom-module id="brendan-route-flight">
+  <style>
+  </style>
+
+  <template>
+    <google-map-poly geodesic map="{{map}}">
+      <google-map-point latitude="{{route.start.latitude}}" longitude="{{route.start.longitude}}" map="{{map}}"></google-map-point>
+      <google-map-point latitude="{{route.end.latitude}}" longitude="{{route.end.longitude}}" map="{{map}}"></google-map-point>
+    </google-map-poly>
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'brendan-route-flight',
+
+    properties: {
+      /**
+       * The Google map object.
+       *
+       * @type google.maps.Map
+       */
+      map: Object,
+
+      route: Object
+    }
+  });
+</script>

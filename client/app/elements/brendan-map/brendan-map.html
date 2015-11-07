@@ -7,8 +7,17 @@
   </style>
 
   <template>
-    <google-map id="map" map="{{map}}">
-    </google-map>
+    <iron-ajax
+      auto
+      id="routeAjax"
+      url="/api/routes.json"
+      handle-as="json"
+      last-response="{{routes}}"
+      debounce-duration="200"></iron-ajax>
+
+    <brendan-routes routes="{{routes}}" map="{{map}}"></brendan-routes>
+
+    <google-map id="map" map="{{map}}"></google-map>
 
   </template>
 </dom-module>
@@ -26,17 +35,11 @@
       map: Object,
 
       /**
-       * Array of flights taken.
+       * Array of stops made.
        *
        * @type Array.<Flight>
        */
-      flights: Array,
-
-
-      /**
-       * Array of additional markers.
-       */
-      markers: Array,
+      stops: Array,
 
       /**
        * Array of routes driven.

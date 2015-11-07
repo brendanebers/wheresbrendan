@@ -1,0 +1,39 @@
+<dom-module id="brendan-routes">
+  <style>
+  </style>
+
+  <template>
+    <template id="repeated-drives" is="dom-repeat" items="{{routes}}" as="route" filter="isDriving">
+      <brendan-route-drive route="{{route}}" map="{{map}}"></brendan-route-drive>
+    </template>
+
+    <template id="repeated-flights" is="dom-repeat" items="{{routes}}" as="route" filter="isNotDriving">
+      <brendan-route-flight route="{{route}}" map="{{map}}"></brendan-route-flight>
+    </template>
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'brendan-routes',
+
+    properties: {
+      /**
+       * The Google map object.
+       *
+       * @type google.maps.Map
+       */
+      map: Object,
+
+      routes: Array
+    },
+
+    isDriving: function(route) {
+      return !route.flight;
+    },
+
+    isNotDriving: function(route) {
+      return !this.isDriving(route);
+    }
+  });
+</script>

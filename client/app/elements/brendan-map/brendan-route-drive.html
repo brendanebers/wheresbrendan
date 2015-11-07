@@ -1,0 +1,33 @@
+<dom-module id="brendan-route-drive">
+  <style>
+  </style>
+
+  <template>
+    <google-map-directions map="{{map}}"
+        start-address="{{_mergeCoords(route.start)}}"
+        end-address="{{_mergeCoords(route.end)}}"
+        travel-mode="DRIVING"
+        renderer-options='{"suppressMarkers": true}'></google-map-directions>
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'brendan-route-drive',
+
+    properties: {
+      /**
+       * The Google map object.
+       *
+       * @type google.maps.Map
+       */
+      map: Object,
+
+      route: Object
+    },
+
+    _mergeCoords: function(coords) {
+      return coords.latitude + ',' + coords.longitude;
+    }
+  });
+</script>
