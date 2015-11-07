@@ -1,0 +1,9 @@
+package wheresbrendan;
+
+
+// A Duration is a period of time defined by start and end epochs.
+message Duration {
+  // The start and end time, expressed as epochs, for this duration.
+  optional float start_time = 1;
+  optional float end_time = 2;
+}

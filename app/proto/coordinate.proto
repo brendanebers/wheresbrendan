@@ -1,0 +1,8 @@
+package wheresbrendan;
+
+
+// Coordinate location given by latitude and longitude.
+message Coordinate {
+  optional float latitude = 1;
+  optional float longitude = 2;
+}

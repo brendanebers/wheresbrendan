@@ -1,0 +1,20 @@
+package wheresbrendan;
+
+import "app/proto/coordinate.proto";
+import "app/proto/duration.proto";
+
+
+message Route {
+  // The starting and ending location of the route.
+  optional Coordinate start = 1;
+  optional Coordinate end = 2;
+
+  // The duration of the trip
+  optional Duration duration = 3;
+
+  // Coordinates along the way to ensure the correct path.
+  repeated Coordinate waypoints = 4;
+
+  // Set to True when the route wasn't driven.
+  optional bool flight = 5;
+}
