@@ -2,6 +2,7 @@
 
 import os
 
+
 # For the Flask application
 SECRET_KEY = os.environ.get('SECRET_KEY', 'dev')
 WTF_CSRF_ENABLED = True
@@ -43,3 +44,5 @@ BRENDAN_NUMBER = '+16035660251'
 WORDPRESS_SITE = os.environ.get('WORDPRESS_SITE')
 WORDPRESS_USER = os.environ.get('WORDPRESS_USER')
 WORDPRESS_PASSWORD = os.environ.get('WORDPRESS_PASSWORD')
+
+REDIS_URL = os.environ.get('REDIS_URL')
