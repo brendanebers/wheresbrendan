@@ -1,0 +1,56 @@
+<dom-module id="brendan-map">
+  <style>
+    google-map {
+        height: 100%;
+        width: 100%;
+    }
+  </style>
+
+  <template>
+    <google-map id="map" map="{{map}}">
+    </google-map>
+
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'brendan-map',
+
+    properties: {
+      /**
+       * The Google map object.
+       *
+       * @type google.maps.Map
+       */
+      map: Object,
+
+      /**
+       * Array of flights taken.
+       *
+       * @type Array.<Flight>
+       */
+      flights: Array,
+
+
+      /**
+       * Array of additional markers.
+       */
+      markers: Array,
+
+      /**
+       * Array of routes driven.
+       *
+       * @type Array.<Route>
+       */
+      routes: Array,
+
+      /**
+       * Brendan's current location
+       *
+       * @type LatLng
+       */
+      current: Object
+    }
+  });
+</script>

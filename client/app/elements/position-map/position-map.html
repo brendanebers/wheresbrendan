@@ -29,7 +29,23 @@ own component. If a point isn't worth having a dialog, it won't get one.
       on-response="handlePrevious"
       debounce-duration="200"></iron-ajax>
 
+    <google-map-directions map="{{map}}"
+        start-address="37.79,-122.30"
+        end-address="37.76,-122.47"
+        travel-mode="DRIVING"
+        renderer-options='{"suppressMarkers": true}'
+        waypoints='[{"location": "37.40,-122.12"}]'></google-map-directions>
+
     <google-map id="map" map="{{map}}" fit-to-markers>
+      <template id="repeated-poly" is="dom-repeat" items="{{flights}}" as "flight">
+
+      </template>
+
+      <google-map-poly>
+        <google-map-point latitude="20" longitude="100"></google-map-point>
+        <google-map-point latitude="10" longitude="150"></google-map-point>
+      </google-map-poly>
+
       <template id="repeated" is="dom-repeat" items="{{points}}" as="point">
         <google-map-marker
           class="non-current"
