@@ -5,16 +5,19 @@ import "app/proto/duration.proto";
 
 
 message Route {
+  // A unique id, usually generated from a uuid.
+  optional string id = 1;
+
   // The starting and ending location of the route.
-  optional Coordinate start = 1;
-  optional Coordinate end = 2;
+  optional Coordinate start = 2;
+  optional Coordinate end = 3;
 
   // The duration of the trip
-  optional Duration duration = 3;
+  optional Duration duration = 4;
 
   // Coordinates along the way to ensure the correct path.
-  repeated Coordinate waypoints = 4;
+  repeated Coordinate waypoints = 5;
 
   // Set to True when the route wasn't driven.
-  optional bool flight = 5;
+  optional bool flight = 6;
 }

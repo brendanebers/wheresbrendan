@@ -6,26 +6,32 @@ import "app/proto/duration.proto";
 
 // A Stop is a location that was stayed at one or more times.
 message Stop {
+  // A unique id, usually generated as a uuid, but possibly anything.
+  optional string id = 1;
+
   // The location of the stop.
-  optional Coordinate location = 1;
+  optional Coordinate location = 2;
 
   // The different stays for the given Stop. A
-  repeated Stay stays = 2;
+  repeated Stay stays = 3;
 
   // A description of the stop, ex: "Guadalajara Homestay" or "Tikal Ruins"
-  optional string description = 3;
+  optional string description = 4;
 }
 
 
 // A stay is a period of time that could be a brief period during the day or
 // an overnight period.
 message Stay {
+  // A unique id, usually generated from a uuid.
+  optional string id = 1;
+
   // Different stays at this location.
-  optional Duration duration = 1;
+  optional Duration duration = 2;
 
   // Set to True when the stop was non-overnight.
-  optional bool short_stay = 2;
+  optional bool short_stay = 3;
 
   // A description of the stay, ex: "First San Cristobal Stop". Very optional.
-  optional string description = 3;
+  optional string description = 4;
 }

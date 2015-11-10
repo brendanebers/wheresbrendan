@@ -20,7 +20,7 @@ import app.proto.duration_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='app/proto/stop.proto',
   package='wheresbrendan',
-  serialized_pb=_b('\n\x14\x61pp/proto/stop.proto\x12\rwheresbrendan\x1a\x1a\x61pp/proto/coordinate.proto\x1a\x18\x61pp/proto/duration.proto\"l\n\x04Stop\x12+\n\x08location\x18\x01 \x01(\x0b\x32\x19.wheresbrendan.Coordinate\x12\"\n\x05stays\x18\x02 \x03(\x0b\x32\x13.wheresbrendan.Stay\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\"Z\n\x04Stay\x12)\n\x08\x64uration\x18\x01 \x01(\x0b\x32\x17.wheresbrendan.Duration\x12\x12\n\nshort_stay\x18\x02 \x01(\x08\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t')
+  serialized_pb=_b('\n\x14\x61pp/proto/stop.proto\x12\rwheresbrendan\x1a\x1a\x61pp/proto/coordinate.proto\x1a\x18\x61pp/proto/duration.proto\"x\n\x04Stop\x12\n\n\x02id\x18\x01 \x01(\t\x12+\n\x08location\x18\x02 \x01(\x0b\x32\x19.wheresbrendan.Coordinate\x12\"\n\x05stays\x18\x03 \x03(\x0b\x32\x13.wheresbrendan.Stay\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\"f\n\x04Stay\x12\n\n\x02id\x18\x01 \x01(\t\x12)\n\x08\x64uration\x18\x02 \x01(\x0b\x32\x17.wheresbrendan.Duration\x12\x12\n\nshort_stay\x18\x03 \x01(\x08\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t')
   ,
   dependencies=[app.proto.coordinate_pb2.DESCRIPTOR,app.proto.duration_pb2.DESCRIPTOR,])
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
@@ -36,22 +36,29 @@ _STOP = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='location', full_name='wheresbrendan.Stop.location', index=0,
-      number=1, type=11, cpp_type=10, label=1,
+      name='id', full_name='wheresbrendan.Stop.id', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='location', full_name='wheresbrendan.Stop.location', index=1,
+      number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='stays', full_name='wheresbrendan.Stop.stays', index=1,
-      number=2, type=11, cpp_type=10, label=3,
+      name='stays', full_name='wheresbrendan.Stop.stays', index=2,
+      number=3, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='description', full_name='wheresbrendan.Stop.description', index=2,
-      number=3, type=9, cpp_type=9, label=1,
+      name='description', full_name='wheresbrendan.Stop.description', index=3,
+      number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -68,7 +75,7 @@ _STOP = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=93,
-  serialized_end=201,
+  serialized_end=213,
 )
 
 
@@ -80,22 +87,29 @@ _STAY = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='duration', full_name='wheresbrendan.Stay.duration', index=0,
-      number=1, type=11, cpp_type=10, label=1,
+      name='id', full_name='wheresbrendan.Stay.id', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='duration', full_name='wheresbrendan.Stay.duration', index=1,
+      number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='short_stay', full_name='wheresbrendan.Stay.short_stay', index=1,
-      number=2, type=8, cpp_type=7, label=1,
+      name='short_stay', full_name='wheresbrendan.Stay.short_stay', index=2,
+      number=3, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='description', full_name='wheresbrendan.Stay.description', index=2,
-      number=3, type=9, cpp_type=9, label=1,
+      name='description', full_name='wheresbrendan.Stay.description', index=3,
+      number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -111,8 +125,8 @@ _STAY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=203,
-  serialized_end=293,
+  serialized_start=215,
+  serialized_end=317,
 )
 
 _STOP.fields_by_name['location'].message_type = app.proto.coordinate_pb2._COORDINATE
