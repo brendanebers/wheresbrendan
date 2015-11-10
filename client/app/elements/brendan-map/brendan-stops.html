@@ -1,0 +1,46 @@
+<dom-module id="brendan-stops">
+  <style></style>
+
+  <template>
+      <template id="repeated" is="dom-repeat" items="{{stops}}" as="stop">
+        <google-map-marker
+          class="non-current"
+          latitude="{{stop.latitude}}"
+          longitude="{{stop.longitude}}"
+          map="{{map}}"
+          title="{{markerTitle(stop)}}"
+        </google-map-marker>
+      </template>
+
+</template>
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'brendan-stops',
+
+    properties: {
+      /**
+       * The Google map object.
+       *
+       * @type google.maps.Map
+       */
+      map: Object,
+
+      /**
+       * Array of stops made.
+       *
+       * @type Array.<Flight>
+       */
+      stops: Array
+    },
+
+    isStay: function(stop) {
+      return stop.icon !== 'position';
+    },
+
+    markerTitle: function(stop) {
+      return stop.latitude + ' ' + stop.longitude + ' ' + stop.epoch;
+    }
+  });
+</script>

@@ -1,0 +1,71 @@
+<dom-module id="brendan-history">
+  <style></style>
+
+  <template>
+      <template id="repeated" is="dom-repeat" items="{{points}}" as="point">
+        <google-map-marker
+          class="non-current"
+          latitude="{{point.latitude}}"
+          longitude="{{point.longitude}}"
+          map="{{map}}"
+          title="{{markerTitle(point)}}"
+          icon="{{iconUrl(point)}}"
+        </google-map-marker>
+      </template>
+
+</template>
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'brendan-history',
+
+    properties: {
+      /**
+       * The Google map object.
+       *
+       * @type google.maps.Map
+       */
+      map: Object,
+
+      /**
+       * Array of stops made.
+       *
+       * @type Array.<Flight>
+       */
+      history: {
+        type: Object,
+        observer: '_historyChanged'
+      },
+
+      points: Array
+    },
+
+    isStay: function(stop) {
+      return stop.icon !== 'position';
+    },
+
+    iconUrl: function(point) {
+      if (point.icon === 'wordpress') {
+        return '/images/wordpress.png';
+      } else if (point.icon === 'position') {
+        return '/images/position.png';
+      }
+    },
+
+    _historyChanged: function() {
+      if (this.history && this.history.points) {
+        this.points = this.history.points;
+      } else {
+        console.log('no history points');
+      }
+    },
+
+    markerTitle: function(point) {
+      if (point.title) {
+        return point.title + point.epoch;
+      }
+      return point.epoch;
+    },
+  });
+</script>

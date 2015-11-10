@@ -15,7 +15,27 @@
       last-response="{{routes}}"
       debounce-duration="200"></iron-ajax>
 
+    <iron-ajax
+      auto
+      id="stopsAjax"
+      url="/api/stops.json"
+      handle-as="json"
+      last-response="{{stops}}"
+      debounce-duration="200"></iron-ajax>
+
+      <iron-ajax
+        auto
+        id="historyAjax"
+        url="/api/history.json"
+        handle-as="json"
+        last-response="{{history}}"
+        debounce-duration="200"></iron-ajax>
+
     <brendan-routes routes="{{routes}}" map="{{map}}"></brendan-routes>
+    <brendan-stops stops="{{stops}}" map="{{map}}"></brendan-stops>
+
+    <!-- Helps show what I used to have going on. -->
+    <brendan-history history="{{history}}" map="{{map}}"><brendan-history>
 
     <google-map id="map" map="{{map}}"></google-map>
 
@@ -47,6 +67,8 @@
        * @type Array.<Route>
        */
       routes: Array,
+
+      history: Object,
 
       /**
        * Brendan's current location
