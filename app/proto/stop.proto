@@ -1,6 +1,7 @@
 package wheresbrendan;
 
 import "app/proto/coordinate.proto";
+import "app/proto/blog_post.proto";
 import "app/proto/duration.proto";
 
 
@@ -17,6 +18,9 @@ message Stop {
 
   // A description of the stop, ex: "Guadalajara Homestay" or "Tikal Ruins"
   optional string description = 4;
+
+  // Any posts written at a given stop.
+  repeated BlogPost blog_posts = 5;
 }
 
 

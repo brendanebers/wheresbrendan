@@ -14,15 +14,16 @@ _sym_db = _symbol_database.Default()
 
 
 import app.proto.coordinate_pb2
+import app.proto.blog_post_pb2
 import app.proto.duration_pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='app/proto/stop.proto',
   package='wheresbrendan',
-  serialized_pb=_b('\n\x14\x61pp/proto/stop.proto\x12\rwheresbrendan\x1a\x1a\x61pp/proto/coordinate.proto\x1a\x18\x61pp/proto/duration.proto\"x\n\x04Stop\x12\n\n\x02id\x18\x01 \x01(\t\x12+\n\x08location\x18\x02 \x01(\x0b\x32\x19.wheresbrendan.Coordinate\x12\"\n\x05stays\x18\x03 \x03(\x0b\x32\x13.wheresbrendan.Stay\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\"f\n\x04Stay\x12\n\n\x02id\x18\x01 \x01(\t\x12)\n\x08\x64uration\x18\x02 \x01(\x0b\x32\x17.wheresbrendan.Duration\x12\x12\n\nshort_stay\x18\x03 \x01(\x08\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t')
+  serialized_pb=_b('\n\x14\x61pp/proto/stop.proto\x12\rwheresbrendan\x1a\x1a\x61pp/proto/coordinate.proto\x1a\x19\x61pp/proto/blog_post.proto\x1a\x18\x61pp/proto/duration.proto\"\xa5\x01\n\x04Stop\x12\n\n\x02id\x18\x01 \x01(\t\x12+\n\x08location\x18\x02 \x01(\x0b\x32\x19.wheresbrendan.Coordinate\x12\"\n\x05stays\x18\x03 \x03(\x0b\x32\x13.wheresbrendan.Stay\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\x12+\n\nblog_posts\x18\x05 \x03(\x0b\x32\x17.wheresbrendan.BlogPost\"f\n\x04Stay\x12\n\n\x02id\x18\x01 \x01(\t\x12)\n\x08\x64uration\x18\x02 \x01(\x0b\x32\x17.wheresbrendan.Duration\x12\x12\n\nshort_stay\x18\x03 \x01(\x08\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t')
   ,
-  dependencies=[app.proto.coordinate_pb2.DESCRIPTOR,app.proto.duration_pb2.DESCRIPTOR,])
+  dependencies=[app.proto.coordinate_pb2.DESCRIPTOR,app.proto.blog_post_pb2.DESCRIPTOR,app.proto.duration_pb2.DESCRIPTOR,])
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 
@@ -63,6 +64,13 @@ _STOP = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='blog_posts', full_name='wheresbrendan.Stop.blog_posts', index=4,
+      number=5, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -74,8 +82,8 @@ _STOP = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=93,
-  serialized_end=213,
+  serialized_start=121,
+  serialized_end=286,
 )
 
 
@@ -125,12 +133,13 @@ _STAY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=215,
-  serialized_end=317,
+  serialized_start=288,
+  serialized_end=390,
 )
 
 _STOP.fields_by_name['location'].message_type = app.proto.coordinate_pb2._COORDINATE
 _STOP.fields_by_name['stays'].message_type = _STAY
+_STOP.fields_by_name['blog_posts'].message_type = app.proto.blog_post_pb2._BLOGPOST
 _STAY.fields_by_name['duration'].message_type = app.proto.duration_pb2._DURATION
 DESCRIPTOR.message_types_by_name['Stop'] = _STOP
 DESCRIPTOR.message_types_by_name['Stay'] = _STAY

@@ -1,0 +1,15 @@
+package wheresbrendan;
+
+
+// A wordpress blog post.
+message BlogPost {
+  optional string id = 1;
+
+  optional int32 post_id = 2;
+  optional string status = 3;
+  optional string title = 4;
+  optional string content = 5;
+  optional float epoch = 6;
+  optional string link = 7;
+  optional string location = 8;
+}
