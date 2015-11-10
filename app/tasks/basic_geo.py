@@ -45,6 +45,11 @@ def CalculateDistance(coord1, coord2):
     return distance.vincenty(coord1, coord2).meters
 
 
+def ConvenientDistance(pos1, pos2):
+    return CalculateDistance((pos1.latitude, pos1.longitude),
+                             (pos2.latitude, pos2.longitude))
+
+
 def CalculateBearing(coord1, coord2):
     """Return bearing from coord1 to coord2."""
     # Stolen from: http://stackoverflow.com/a/17662363
